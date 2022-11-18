@@ -54,10 +54,11 @@
     ```python
     if args.image_input:
     	img = read_image(args.image_input, format="BGR")
-    	predictions, visualized_output = demo.run_on_image(img)
-    	cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-    	cv2.imshow(WINDOW_NAME, visualized_output.get_image()[:, :, ::-1])
-    	cv2.waitKey(0)  # esc to quit
+    	predictions, visualized_output, masks = demo.run_on_image(img)
+        for i in masks:
+            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+            cv2.imshow(WINDOW_NAME, i)
+            cv2.waitKey(0)  # esc to quit
     ```
     
 2. In the initialization of the `VisualizationDemo()` class, I commented on these lines, because we don't want to use these datasets, as we are using coco which is used for frame detection
@@ -94,7 +95,6 @@
             # raise NotImplementedError("Use `run_on_sequence` instead.")
             vis_output = None
             predictions = self.predictor(image)
-            print(predictions)
             # pred_scores = predictions["scores"]
             # pred_masks = predictions["pred_masks"]
             # Convert image from OpenCV BGR format to Matplotlib RGB format.
@@ -105,9 +105,11 @@
             vis_output = visualizer.draw_instance_predictions(
                 predictions=instances)
     
+            masks = []
             for i in range(len(instances.scores)):
-                cv2.imwrite("/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label_image" +
-                            str(i)+".png", np.asarray(instances.pred_masks)[i])
-    
-            return predictions, vis_output
+                # cv2.imwrite("/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label_image" +
+                #             str(i)+".png", np.asarray(instances.pred_masks)[i])
+                masks.append(np.asarray(instances.pred_masks)[i])
+
+            return predictions, vis_output, masks
     ```
