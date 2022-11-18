@@ -1,12 +1,37 @@
 # Mask2Former Instance Segmentation
 
 ## Installation Steps
-1. 
+1. Create conda environment with Python version 3.9 and then activate it
+    ```bash
+    conda create --name segnetv2 python=3.9 -y
+    conda activate segnetv2
+    ````
+2. Install appropriate version of pytorch, cudatoolkit and torchvision libraries with GPU support. Along with that also install opencv libraries which will be used for miscellaneous work
+    ```bash
+    conda install pytorch==1.9.0 torchvision==0.10.0 cudatoolkit=11.1 -c pytorch -c nvidia
+    pip install -U opencv-python
+    ```
+3. Now clone the detectron repo outside this repo as we only want the libraries to install so after installation you may delete the repo. Follow these steps
+    ```bash
+    git clone git@github.com:facebookresearch/detectron2.git
+    cd detectron2
+    pip install -e .
+    pip install git+https://github.com/cocodataset/panopticapi.git
+    pip install git+https://github.com/mcordts/cityscapesScripts.git
+    ```
+4. Also we have to install libraries from Mask2Former repo that contains all the network related libraries. Follow these steps
+    ```bash
+    git clone git@github.com:facebookresearch/Mask2Former.git
+    cd Mask2Former
+    pip install -r requirements.txt
+    cd mask2former/modeling/pixel_decoder/ops
+    sh make.sh
+    ```
 
 ## Important points to note
 
 1. Change the config file path while cloning it to the target machine
-2. 
+2. Change the default parameters as per the filepath of the weights, image path, Number of Sampling fraem number and so on...
 
 ## Changes for single frame detection
 
