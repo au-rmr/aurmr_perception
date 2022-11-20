@@ -19,7 +19,17 @@
     pip install git+https://github.com/cocodataset/panopticapi.git
     pip install git+https://github.com/mcordts/cityscapesScripts.git
     ```
-4. Also we have to install libraries from Mask2Former repo that contains all the network related libraries. Follow these steps
+4. Ninja is yet another build system. It takes as input the interdependencies of files (typically source code and output executables) and orchestrates building them, quickly. So Mask2Former needs ninja, thus clone this repo and install using python
+    ```bash
+    git clone https://github.com/ninja-build/ninja.git
+    cd ninja
+    ./configure.py --bootstrap
+    ```
+5. Install the cudatoolkit-dev which includes cuda-nvcc library which is required by Mask2Former package
+    ```bash
+    conda install -c conda-forge cudatoolkit-dev
+    ```
+6. Also we have to install libraries from Mask2Former repo that contains all the network related libraries. Follow these steps
     ```bash
     git clone git@github.com:facebookresearch/Mask2Former.git
     cd Mask2Former
