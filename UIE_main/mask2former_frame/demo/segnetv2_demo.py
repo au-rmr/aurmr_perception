@@ -17,13 +17,8 @@ import glob
 import multiprocessing as mp
 import os
 
-# sys.path.insert(1,
-#     "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/mask2former_frame/")
 from demo.predictor import VisualizationDemo
-# fmt: off
-# sys.path.insert(1, os.path.join(sys.path[0], '../..'))
-# fmt: on
-# constants
+
 WINDOW_NAME = "mask2former demo"
 
 

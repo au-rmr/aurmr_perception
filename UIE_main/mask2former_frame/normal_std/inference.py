@@ -10,10 +10,6 @@ from PIL import Image
 import scipy.io as scio
 from normal_std.policy import estimate_suction
 import math
-
-# sys.path.insert(0,
-#     "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/mask2former_frame/demo")
-
 from mask2former_frame.demo.segnetv2_demo import SegnetV2
 ######################################################################################################
 object = SegnetV2()
