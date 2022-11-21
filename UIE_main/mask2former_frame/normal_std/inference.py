@@ -14,13 +14,13 @@ from mask2former_frame.demo.segnetv2_demo import SegnetV2
 ######################################################################################################
 object = SegnetV2()
 masks = object.mask_generator(
-    "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")
+    "/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")
 ######################################################################################################
 
 
 split = 'test_seen'
 camera = 'kinect'
-save_root = '/home/soofiyanatar/Documents/AmazonHUB/suctionnet-baseline/normal_std/Results'
+save_root = '/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/result'
 
 
 class CameraInfo():
@@ -123,8 +123,8 @@ class run_normal_std():
         for mask in masks:
             # reading the depth mask and rgb file, also reading the meta file for intrinsic parameters
             # segmask_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label0.png"
-            depth_file = "/home/soofiyanatar/datasets/Full_Dataset/depth_2.png"
-            rgb_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
+            depth_file = "/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/annotated_real_v1_resized/depth/depth_2.png"
+            rgb_file = "/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
 
             # segmask_file = "/home/soofiyanatar/datasets/Full_Dataset/label_segnet.png"
             # depth_file = "/home/soofiyanatar/datasets/Full_Dataset/depth_segnet.png"
@@ -134,7 +134,6 @@ class run_normal_std():
             depth = cv2.imread(depth_file, cv2.IMREAD_UNCHANGED).astype(
                 np.float32)/1000.0
             seg_mask = mask.astype(np.uint8)
-
             # applying contour to get the edges of the mask
             contours = cv2.findContours(
                 seg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

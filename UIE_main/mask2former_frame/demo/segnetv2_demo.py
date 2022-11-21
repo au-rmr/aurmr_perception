@@ -39,7 +39,7 @@ def get_parser():
         description="maskformer2 demo for builtin configs")
     parser.add_argument(
         "--config-file",
-        default="/home/soofiyanatar/Documents/AmazonHUB/UIE_main/configs/amazon/frame_maskformer2_v1_v14_c11_lr1e-5_no_clip_fix_query.yaml",
+        default="/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/configs/amazon/frame_maskformer2_v1_v14_c11_lr1e-5_no_clip_fix_query.yaml",
         metavar="FILE",
         help="path to config file",
     )
@@ -52,7 +52,7 @@ def get_parser():
     parser.add_argument(
         "--opts",
         help="Modify config options using the command-line 'KEY VALUE' pairs",
-        default=['MODEL.WEIGHTS', '/home/soofiyanatar/Documents/AmazonHUB/UIE_main/model_final.pth',
+        default=['MODEL.WEIGHTS', '/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/model_final.pth',
                  'DATALOADER.NUM_WORKERS', '0', 'INPUT.SAMPLING_FRAME_NUM', '1'],
         nargs=argparse.REMAINDER,
     )
@@ -70,11 +70,12 @@ class SegnetV2():
         img = read_image(input_image, format="BGR")
         predictions, visualized_output, masks = self.demo.run_on_image(
             img)
-        for i in masks:
-            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-            cv2.imshow(WINDOW_NAME, i)
-            cv2.waitKey(0)  # esc to quit
+        # for i in masks:
+        #     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+        #     cv2.imshow(WINDOW_NAME, i)
+        #     cv2.waitKey(0)  # esc to quit
         return masks
 
 
-# SegnetV2("/home/soofiyanatar/Documents/AmazonHUB/UIE-main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")
+# object = SegnetV2()
+# object.mask_generator("/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")

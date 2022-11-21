@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 import torch
 
-from visualizer import TrackVisualizer
+from demo.visualizer import TrackVisualizer
 from detectron2.data import MetadataCatalog
 from detectron2.engine.defaults import DefaultPredictor
 from detectron2.structures import Instances
@@ -70,7 +70,7 @@ class VisualizationDemo(object):
             # cv2.imwrite("/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label_image" +
             #             str(i)+".png", np.asarray(instances.pred_masks)[i])
             masks.append(np.asarray(instances.pred_masks)[i])
-
+            print("count")
         return predictions, vis_output, masks
 
     def run_on_sequence(self, sequence):
