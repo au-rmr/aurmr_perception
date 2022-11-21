@@ -1,3 +1,4 @@
+import sys
 
 from mask2former_frame import add_maskformer2_frame_config
 from mask2former import add_maskformer2_config
@@ -15,14 +16,12 @@ import argparse
 import glob
 import multiprocessing as mp
 import os
-import sys
-sys.path.insert(
-    1, "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/mask2former_frame/demo/")
-from predictor import VisualizationDemo
 
-
+# sys.path.insert(1,
+#     "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/mask2former_frame/")
+from demo.predictor import VisualizationDemo
 # fmt: off
-sys.path.insert(1, os.path.join(sys.path[0], '../..'))
+# sys.path.insert(1, os.path.join(sys.path[0], '../..'))
 # fmt: on
 # constants
 WINDOW_NAME = "mask2former demo"
@@ -45,7 +44,7 @@ def get_parser():
         description="maskformer2 demo for builtin configs")
     parser.add_argument(
         "--config-file",
-        default="/home/soofiyanatar/Documents/AmazonHUB/UIE-main/configs/amazon/frame_maskformer2_v1_v14_c11_lr1e-5_no_clip_fix_query.yaml",
+        default="/home/soofiyanatar/Documents/AmazonHUB/UIE_main/configs/amazon/frame_maskformer2_v1_v14_c11_lr1e-5_no_clip_fix_query.yaml",
         metavar="FILE",
         help="path to config file",
     )
@@ -58,7 +57,7 @@ def get_parser():
     parser.add_argument(
         "--opts",
         help="Modify config options using the command-line 'KEY VALUE' pairs",
-        default=['MODEL.WEIGHTS', '/home/soofiyanatar/Documents/AmazonHUB/UIE-main/model_final.pth',
+        default=['MODEL.WEIGHTS', '/home/soofiyanatar/Documents/AmazonHUB/UIE_main/model_final.pth',
                  'DATALOADER.NUM_WORKERS', '0', 'INPUT.SAMPLING_FRAME_NUM', '1'],
         nargs=argparse.REMAINDER,
     )
@@ -76,10 +75,10 @@ class SegnetV2():
         img = read_image(input_image, format="BGR")
         predictions, visualized_output, masks = self.demo.run_on_image(
             img)
-        # for i in masks:
-        #     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-        #     cv2.imshow(WINDOW_NAME, i)
-        #     cv2.waitKey(0)  # esc to quit
+        for i in masks:
+            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+            cv2.imshow(WINDOW_NAME, i)
+            cv2.waitKey(0)  # esc to quit
         return masks
 
 

@@ -1,4 +1,3 @@
-from mask2former_frame.demo.segnetv2_demo import SegnetV2
 import os
 import cv2
 import sys
@@ -9,13 +8,17 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 import scipy.io as scio
-from policy import estimate_suction
+from normal_std.policy import estimate_suction
 import math
 
+# sys.path.insert(0,
+#     "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/mask2former_frame/demo")
+
+from mask2former_frame.demo.segnetv2_demo import SegnetV2
 ######################################################################################################
 object = SegnetV2()
 masks = object.mask_generator(
-    "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")
+    "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")
 ######################################################################################################
 
 
@@ -125,7 +128,7 @@ class run_normal_std():
             # reading the depth mask and rgb file, also reading the meta file for intrinsic parameters
             # segmask_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label0.png"
             depth_file = "/home/soofiyanatar/datasets/Full_Dataset/depth_2.png"
-            rgb_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
+            rgb_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
 
             # segmask_file = "/home/soofiyanatar/datasets/Full_Dataset/label_segnet.png"
             # depth_file = "/home/soofiyanatar/datasets/Full_Dataset/depth_segnet.png"

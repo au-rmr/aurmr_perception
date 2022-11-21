@@ -1,0 +1,1 @@
+from mask2former_frame.demo.segnetv2_demo import SegnetV2
