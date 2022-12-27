@@ -1,7 +1,10 @@
 setup.py
-/home/aurmr/workspaces/segnetv2_normal_grasp/src/instance_segmentation/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/vision.cpp
-/home/aurmr/workspaces/segnetv2_normal_grasp/src/instance_segmentation/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.cpp
-/home/aurmr/workspaces/segnetv2_normal_grasp/src/instance_segmentation/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.cu
+/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/vision.cpp
+/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.cpp
+/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.cu
+/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/vision.cpp
+/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.cpp
+/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.cu
 MultiScaleDeformableAttention.egg-info/PKG-INFO
 MultiScaleDeformableAttention.egg-info/SOURCES.txt
 MultiScaleDeformableAttention.egg-info/dependency_links.txt

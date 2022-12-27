@@ -1,0 +1,4 @@
+# ninja log v5
+0	1514	1669173026855207888	/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.o	4126d9826c4232b1
+0	5720	1669173031063238478	/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.o	24c7ed668eaa86ca
+0	6980	1669173032311247547	/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-cpython-38/home/aurmr/workspaces/soofiyan_ws/aurmr_perception/Mask2Former/mask2former/modeling/pixel_decoder/ops/src/vision.o	8e227209c0ddfe8
