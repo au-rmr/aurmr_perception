@@ -1,0 +1,4 @@
+# ninja log v5
+0	1806	1674002298063026297	/home/soofiyan_ws/workspaces/VITA_ws/VITA/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-3.9/home/soofiyan_ws/workspaces/VITA_ws/VITA/mask2former/modeling/pixel_decoder/ops/src/cpu/ms_deform_attn_cpu.o	6b37fb331dfa9182
+0	6933	1674002303186974469	/home/soofiyan_ws/workspaces/VITA_ws/VITA/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-3.9/home/soofiyan_ws/workspaces/VITA_ws/VITA/mask2former/modeling/pixel_decoder/ops/src/cuda/ms_deform_attn_cuda.o	6090ac41a7e5f492
+0	8945	1674002305202954080	/home/soofiyan_ws/workspaces/VITA_ws/VITA/mask2former/modeling/pixel_decoder/ops/build/temp.linux-x86_64-3.9/home/soofiyan_ws/workspaces/VITA_ws/VITA/mask2former/modeling/pixel_decoder/ops/src/vision.o	fc1251600e58d416
