@@ -311,8 +311,8 @@ class run_normal_std():
         if(depth[(idx0[suction_number]), int(idx1[suction_number])] < 1.3):
             self.drawGaussian(score_image, [
                 idx1[suction_number], idx0[suction_number]], 1.0, 3)
-            self.drawGaussian(
-                score_image, [int(center[0]), int(center[1])], 0.5, 3)
+            # self.drawGaussian(
+            #     score_image, [int(center[0]), int(center[1])], 0.5, 3)
         euler_angle = [math.asin(suction_directions[suction_number][0]), math.asin(
             suction_directions[suction_number][1])]
         # print(center_3D)
