@@ -55,6 +55,7 @@ class VisualizationDemo(object):
         # raise NotImplementedError("Use `run_on_sequence` instead.")
         vis_output = None
         predictions = self.predictor(image)
+
         # pred_scores = predictions["scores"]
         # pred_masks = predictions["pred_masks"]
         # Convert image from OpenCV BGR format to Matplotlib RGB format.

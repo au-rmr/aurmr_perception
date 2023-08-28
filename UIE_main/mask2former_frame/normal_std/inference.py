@@ -11,18 +11,18 @@ import scipy.io as scio
 from normal_std.policy import estimate_suction
 import math
 sys.path.insert(1,
-    "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/mask2former_frame")
+    "/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/UIE_main/mask2former_frame")
 from demo.segnetv2_demo import SegnetV2
 ######################################################################################################
 object = SegnetV2()
 masks, _ = object.mask_generator(
-    "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")
+    "/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png")
 ######################################################################################################
 
 
 split = 'test_seen'
 camera = 'kinect'
-save_root = '/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/result'
+save_root = '/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/UIE_main/result'
 
 
 class CameraInfo():
@@ -125,8 +125,8 @@ class run_normal_std():
         for mask in masks:
             # reading the depth mask and rgb file, also reading the meta file for intrinsic parameters
             # segmask_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label0.png"
-            depth_file = "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/depth/depth_2.png"
-            rgb_file = "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
+            depth_file = "/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/depth.png"
+            rgb_file = "/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/grasp_pre_mask.png"
 
             # segmask_file = "/home/soofiyanatar/datasets/Full_Dataset/label_segnet.png"
             # depth_file = "/home/soofiyanatar/datasets/Full_Dataset/depth_segnet.png"

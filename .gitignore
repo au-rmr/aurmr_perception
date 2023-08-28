@@ -1,1 +1,7 @@
 *.pth
+*.pth
+Mask_Results/*
+ninja/*
+UIE_main/mask2former_frame/demo/__pycache__/*
+UIE_main/mask2former_frame/normal_std/__pycache__/*
+
