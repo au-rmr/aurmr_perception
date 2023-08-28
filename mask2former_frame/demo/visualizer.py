@@ -52,7 +52,10 @@ class TrackVisualizer(Visualizer):
         labels = _create_text_labels(classes, scores, self.metadata.get("thing_classes", None))
         mapping = {0:"A", 1:"B", 2:"C", 3:"D", 4:"E", 5:"F", 6:"G", 7:"H", 8:"I", 9:"J", 10:"K", 11:"L", 12:"M", 13:"N", 14:"O", 15:"P", 16:"Q",}
         if labels is not None:
-            labels = ["[{}] ".format(max_seq_iou_id[_id]) for _id, l in enumerate(labels)]
+            if max_seq_iou_id is not None:
+                labels = ["[{}] ".format(max_seq_iou_id[_id]) for _id, l in enumerate(labels)]
+            else:
+                labels = ["[{}] ".format(_id) for _id, l in enumerate(labels)]
             # if max_seq_iou is not None:
             #     # labels = [ori_label + "\n[{:.1f} | {:.1f}] ".format(frame_iou*100, seq_iou*100) \
             #     #      for ori_label, frame_iou, seq_iou in zip(labels, max_frame_iou, max_seq_iou)]
@@ -74,8 +77,11 @@ class TrackVisualizer(Visualizer):
         alpha = 0.5
 
         stable_colors = []
-        for id, seq_id in enumerate(max_seq_iou_id):
-            stable_colors.append(colors[seq_id])
+        if max_seq_iou_id is not None:
+            for id, seq_id in enumerate(max_seq_iou_id):
+                stable_colors.append(colors[seq_id])
+        else: 
+            stable_colors = colors
 
         if self._instance_mode == ColorMode.IMAGE_BW:
             self.output.img = self._create_grayscale_image(

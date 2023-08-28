@@ -429,7 +429,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                     instances_cur_frame = [{k: [v] for k, v in instances.items()} for instances in instances_cur_frame]
                     instances_in_history = instances_cur_frame
                     continue
-                
+                # instances_in_history = instances_cur_frame
                 method = 'false_positive_hungarian'
                 if method == 'hungarian':
                     # find the best match for each instance in the current frame
@@ -536,6 +536,15 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                     for instance_idx, instance in enumerate(instances_cur_frame):
                         new_instance_this_frame = {k: [v] for k, v in instance.items()}
                         instances_in_history.append(new_instance_this_frame)
+                elif method == 'None':
+                    reid_embed_in_cur_frame = torch.stack([x['reid_embed'] for x in instances_cur_frame])
+                    num_cur_frame = len(instances_cur_frame)
+                    num_track_trajector = len(instances_in_history)
+
+                    for instance_idx, instance in enumerate(instances_cur_frame):
+                        new_instance_this_frame = {k: [v] for k, v in instance.items()}
+                        instances_in_history.append(new_instance_this_frame)
+
         if method == 'beam_search':
             instances_in_history = self.use_prior_in_amazon_task(instances_in_history)
                                     
@@ -568,21 +577,24 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
         :return: list of dict
         """
         if len(instances) == 0:
-            return {"pred_scores": [], "pred_scores_perframe": [], "pred_labels": [], "pred_masks": [], "image_size": []}
-        results_ytvis = {"pred_scores": [], "pred_scores_perframe": [], "pred_labels": [], "pred_masks": [], "image_size": instances[0]['pred_masks'][0].shape}
+            return {"pred_scores": [], "pred_scores_perframe": [], "pred_labels": [], "pred_masks": [], "image_size": [], "reid_embed": []}
+        results_ytvis = {"pred_scores": [], "pred_scores_perframe": [], "pred_labels": [], "pred_masks": [], "image_size": instances[0]['pred_masks'][0].shape, "reid_embed": []}
         empty_mask = torch.zeros_like(instances[0]['pred_masks'][0])
         for instance_idx, instance in enumerate(instances):
             score = instance['scores'][-1]
             pred_label = instance['pred_classes'][-1].item()
             pred_masks = [empty_mask] * self.num_frames
             pred_scores_perframe = [0] * self.num_frames
+            reid_embed = [None] * self.num_frames
             for appearance_idx, frame_idx in enumerate(instance['frame_index']):
                 pred_masks[frame_idx] = instance['pred_masks'][appearance_idx]
                 pred_scores_perframe[frame_idx] = instance['scores'][appearance_idx]
+                reid_embed[frame_idx] = instance['reid_embed'][appearance_idx]
             results_ytvis["pred_scores"].append(score)
             results_ytvis["pred_scores_perframe"].append(pred_scores_perframe)
             results_ytvis["pred_labels"].append(pred_label)
             results_ytvis["pred_masks"].append(pred_masks)
+            results_ytvis["reid_embed"].append(reid_embed)
         return results_ytvis
     
     def semantic_inference(self, mask_cls, mask_pred):

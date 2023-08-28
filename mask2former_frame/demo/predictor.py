@@ -17,9 +17,6 @@ from detectron2.structures import Instances
 from detectron2.utils.video_visualizer import VideoVisualizer
 from detectron2.utils.visualizer import ColorMode, Visualizer
 
-import matplotlib.pyplot as plt
-import cv2
-
 
 class VisualizationDemo(object):
     def __init__(self, cfg, instance_mode=ColorMode.IMAGE, parallel=False, test_type="coco"):
@@ -81,6 +78,14 @@ class VisualizationDemo(object):
         else:
             NotImplementedError("Test type not supported")
             
+    def run_on_sequence_single(self, sequence, labels=None, separate_anno=False):
+        if self.test_type=='coco':
+            return self.run_on_sequence_coco(sequence)
+        elif self.test_type=='ytvis':
+            return self.run_on_sequence_ytvis_single(sequence, labels=labels, separate_anno=separate_anno)
+        else:
+            NotImplementedError("Test type not supported")
+
     def run_on_sequence_coco(self, images):
         """
         Visualizes predictions on a sequence of images.
@@ -120,13 +125,50 @@ class VisualizationDemo(object):
             predictions (dict): the output of the model.
             vis_output (VisImage): the visualized image output.
         """
-        vis_output = None
         predictions = self.predictor(frames)
-        # breakpoint()
-        pred_masks = predictions[0]['instances'].pred_masks
-        embeddings = predictions[0]['instances'].reid_embed
         
-        return pred_masks, embeddings
+        image_size = predictions["image_size"]
+        pred_scores = predictions["pred_scores"]
+        pred_labels = predictions["pred_labels"]
+        pred_masks = predictions["pred_masks"]
+        embed = predictions["reid_embed"]
+        
+        # Calculate the max sequence IoU between the predicted masks and the ground truth masks
+        frame_masks = list(zip(*pred_masks))
+        embedded_array = []
+        for frame_idx in range(len(frames)):
+            ins = Instances(image_size)
+            
+            if len(pred_scores) > 0:
+                ins.scores = pred_scores
+                ins.pred_classes = pred_labels
+                ins.pred_masks = torch.stack(frame_masks[frame_idx], dim=0)
+        return ins.pred_masks, embed
+    
+
+    def run_on_sequence_ytvis_single(self, frames, labels=None, separate_anno=False):
+        """
+        Args:
+            frames (List[np.ndarray]): a list of images of shape (H, W, C) (in BGR order).
+                This is the format used by OpenCV.
+            labels: masks of shape (num_frames, H, W), or (num_frames, num_objects, H, W) if separate_anno is True
+        Returns:
+            predictions (dict): the output of the model.
+            vis_output (VisImage): the visualized image output.
+        """
+        predictions = self.predictor(frames)
+        pred_scores = predictions[0]['instances'].scores
+        pred_masks = predictions[0]['instances'].pred_masks
+        embedded_array = predictions[0]['instances'].reid_embed
+        
+        # Calculate the max sequence IoU between the predicted masks and the ground truth masks
+        frame_masks = list(zip(*pred_masks))
+        pred_masks_stack = None
+        for frame_idx in range(len(frames)):
+            if len(pred_scores) > 0:
+                pred_masks_stack = torch.stack(frame_masks[frame_idx], dim=0)
+
+        return pred_masks[0], embedded_array[0]
     
     def _frame_from_video(self, video):
         while video.isOpened():

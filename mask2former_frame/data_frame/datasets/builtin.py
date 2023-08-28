@@ -34,6 +34,12 @@ _PREDEFINED_SPLITS_AMAZON_SYN_V2_VIDEO = {
     "amazon_video_syn_v2_val": ("amazon_syn/bin_syn/test_shard_000000.h5",
                             "amazon_syn/bin_syn/test_shard_000000_coco.json"),
 }
+_PREDEFINED_SPLITS_NEWBIN_SYN = {
+    "newbin_syn_train": ("amazon_syn/bin_syn/train_shard_1k.h5",
+                            "amazon_syn/bin_syn/train_shard_1k_coco.json"),
+    "newbin_syn_val": ("amazon_syn/bin_syn/test_shard_200.h5",
+                            "amazon_syn/bin_syn/test_shard_200_coco.json"),
+}
 _PREDEFINED_SPLITS_TABLETOP_SYN = {
     "tabletop_syn_train": ("amazon_syn/tabletop_syn/train_shard_000000.h5",
                             "amazon_syn/tabletop_syn/train_shard_000000_coco.json"),
@@ -96,6 +102,17 @@ def register_all_amazon_v2_video(root):
             os.path.join(root, json_file) if "://" not in json_file else json_file,
             os.path.join(root, image_root),
         )
+
+def register_all_newbin_syn(root):
+    for key, (image_root, json_file) in _PREDEFINED_SPLITS_NEWBIN_SYN.items():
+        # Assume pre-defined datasets live in `./datasets`.
+        register_amazon_syn_video_instances(
+            key,
+            _get_amazon_2022_instances_meta(),
+            os.path.join(root, json_file) if "://" not in json_file else json_file,
+            os.path.join(root, image_root),
+        )
+
 
 def register_all_tabletop_syn(root):
     for key, (image_root, json_file) in _PREDEFINED_SPLITS_TABLETOP_SYN.items():
@@ -183,6 +200,7 @@ if __name__.endswith(".builtin"):
     register_all_amazon_2022_image(_root)
     register_all_amazon_v2_video(_root)
     register_all_amazon_2022_videoperframe(_root)
+    register_all_newbin_syn(_root)
     register_all_tabletop_syn(_root)
     register_all_ytvis_2019(_root)
     register_all_ytvis_2021(_root)

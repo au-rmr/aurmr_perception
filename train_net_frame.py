@@ -112,7 +112,7 @@ class Trainer(DefaultTrainer):
             if cfg.LOAD_DATASET_INTO_MEMORY:
                 dataset.load_dataset_into_memory()
             mapper = AmazonSynMultiFrameMapper(cfg, True)
-        elif cfg.DATASETS.TRAIN[0].startswith('amazon_video_syn_v2') or cfg.DATASETS.TRAIN[0].startswith('tabletop_syn'):
+        elif cfg.DATASETS.TRAIN[0].startswith('amazon_video_syn_v2') or cfg.DATASETS.TRAIN[0].startswith('tabletop_syn') or cfg.DATASETS.TRAIN[0].startswith('newbin_syn_train'):
             loader = []
             for ds in cfg.DATASETS.TRAIN:
                 # if ds == 'amazon_video_syn_v2_train':
