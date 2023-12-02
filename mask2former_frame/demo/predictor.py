@@ -164,11 +164,33 @@ class VisualizationDemo(object):
         # Calculate the max sequence IoU between the predicted masks and the ground truth masks
         frame_masks = list(zip(*pred_masks))
         pred_masks_stack = None
-        for frame_idx in range(len(frames)):
+        for frame_idx in range(len(frames[0])):
             if len(pred_scores) > 0:
                 pred_masks_stack = torch.stack(frame_masks[frame_idx], dim=0)
+        try:
+            embeddings_temp = embedded_array[0]
+            mask = pred_masks[0]
+        except:
+            embeddings_temp = torch.ones((1, 256), dtype = torch.float64).to('cuda:0')
+            mask = torch.zeros((frames[0].shape[0], frames[0].shape[1]), dtype = torch.uint8)
 
-        return pred_masks[0], embedded_array[0]
+        return mask, embeddings_temp
+    
+    def run_on_sequence_ytvis_single_image_multi_masks(self, frames, labels=None, separate_anno=False):
+        """
+        Args:
+            frames (List[np.ndarray]): a list of images of shape (H, W, C) (in BGR order).
+                This is the format used by OpenCV.
+            labels: masks of shape (num_frames, H, W), or (num_frames, num_objects, H, W) if separate_anno is True
+        Returns:
+            predictions (dict): the output of the model.
+            vis_output (VisImage): the visualized image output.
+        """
+        predictions = self.predictor(frames)
+        pred_scores = predictions[0]['instances'].scores
+        pred_masks = predictions[0]['instances'].pred_masks
+        embedded_array = predictions[0]['instances'].reid_embed
+        return pred_masks, embedded_array
     
     def _frame_from_video(self, video):
         while video.isOpened():
