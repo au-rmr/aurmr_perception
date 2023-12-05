@@ -54,9 +54,4 @@ _darcs
 /models
 /snippet
 data/
-configs/*
-*.pyc
-detectron2/data/__pycache__/*
-detectron2/checkpoint/__pycache__/*
-detectron2/*.pyc
-detectron2/__pycache__/*
+
