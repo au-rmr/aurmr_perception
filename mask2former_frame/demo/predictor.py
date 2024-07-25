@@ -77,7 +77,7 @@ class VisualizationDemo(object):
             return self.run_on_sequence_ytvis(sequence, labels=labels, separate_anno=separate_anno)
         else:
             NotImplementedError("Test type not supported")
-            
+
     def run_on_sequence_single(self, sequence, labels=None, separate_anno=False):
         if self.test_type=='coco':
             return self.run_on_sequence_coco(sequence)
@@ -104,7 +104,7 @@ class VisualizationDemo(object):
             vis_output.append(visualizer.draw_instance_predictions(predictions=instances))
 
         return predictions, vis_output
-    
+
     def calc_IoU(self, pred, label):
         intersection = torch.sum(pred*label)
         union = torch.sum((pred + label - pred*label))
@@ -126,25 +126,25 @@ class VisualizationDemo(object):
             vis_output (VisImage): the visualized image output.
         """
         predictions = self.predictor(frames)
-        
+
         image_size = predictions["image_size"]
         pred_scores = predictions["pred_scores"]
         pred_labels = predictions["pred_labels"]
         pred_masks = predictions["pred_masks"]
         embed = predictions["reid_embed"]
-        
+
         # Calculate the max sequence IoU between the predicted masks and the ground truth masks
         frame_masks = list(zip(*pred_masks))
         embedded_array = []
         for frame_idx in range(len(frames)):
             ins = Instances(image_size)
-            
+
             if len(pred_scores) > 0:
                 ins.scores = pred_scores
                 ins.pred_classes = pred_labels
                 ins.pred_masks = torch.stack(frame_masks[frame_idx], dim=0)
         return ins.pred_masks, embed
-    
+
 
     def run_on_sequence_ytvis_single(self, frames, labels=None, separate_anno=False):
         """
@@ -160,7 +160,7 @@ class VisualizationDemo(object):
         pred_scores = predictions[0]['instances'].scores
         pred_masks = predictions[0]['instances'].pred_masks
         embedded_array = predictions[0]['instances'].reid_embed
-        
+
         # Calculate the max sequence IoU between the predicted masks and the ground truth masks
         frame_masks = list(zip(*pred_masks))
         pred_masks_stack = None
@@ -175,7 +175,7 @@ class VisualizationDemo(object):
             mask = torch.zeros((frames[0].shape[0], frames[0].shape[1]), dtype = torch.uint8)
 
         return mask, embeddings_temp
-    
+
     def run_on_sequence_ytvis_single_image_multi_masks(self, frames, labels=None, separate_anno=False):
         """
         Args:
@@ -191,7 +191,7 @@ class VisualizationDemo(object):
         pred_masks = predictions[0]['instances'].pred_masks
         embedded_array = predictions[0]['instances'].reid_embed
         return pred_masks, embedded_array
-    
+
     def _frame_from_video(self, video):
         while video.isOpened():
             success, frame = video.read()

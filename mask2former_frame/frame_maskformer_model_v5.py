@@ -68,7 +68,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
         self.test_match_threshold = kwargs.pop("test_match_threshold")
         # feed all input to init super class
         super().__init__(*args, **kwargs)
-        
+
     @classmethod
     def from_config(cls, cfg):
         backbone = build_backbone(cfg)
@@ -90,7 +90,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
         if softmax_weight <0:
             softmax_weight = reid_weight
         # inv_reid_weight = cfg.MODEL.MASK_FORMER.INV_REID_WEIGHT
-        
+
         # building criterion
         matcher = MercyMatcher(
             cost_class=class_weight,
@@ -103,10 +103,10 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
             max_num_bg = cfg.MODEL.MASK_FORMER.MAX_NUM_BG,
         )
 
-        weight_dict = {"loss_ce": class_weight, 
-                  "loss_mask": mask_weight, 
+        weight_dict = {"loss_ce": class_weight,
+                  "loss_mask": mask_weight,
                   "loss_dice": dice_weight,
-                  "loss_contra": contra_weight, 
+                  "loss_contra": contra_weight,
                   "loss_softmax": softmax_weight}
 
         # weight_dict['loss_reid_pos'] = cfg.MODEL.MASK_FORMER.REID_POSITIVE_WEIGHT
@@ -142,12 +142,12 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
             alpha = cfg.MODEL.MASK_FORMER.CONTRASTIVE_ALPHA,
             sigma = cfg.MODEL.MASK_FORMER.CONTRASTIVE_SIGMA
         )
-        
+
         reid_head = reid_encoder_head(cfg.MODEL.MASK_FORMER.HIDDEN_DIM,
                                       cfg.MODEL.MASK_FORMER.REID_DIM,
                                       cfg.MODEL.REID,
                                       cfg.MODEL.SEM_SEG_HEAD)
-        
+
         if cfg.MODEL.MASK_FORMER.TRANSFORMER_DECODER_NAME == 'SequenceMultiScaleMaskedTransformerDecoder':
             forward_as = 'sequence'
         else:
@@ -203,7 +203,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                         plt.imshow(sample_inputs['instances'][idx].gt_masks[0])
                         plt.axis('off')
             plt.show()
-        
+
     def forward(self, batched_sequences):
         """
         Args:
@@ -237,14 +237,14 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                 batched_targets.append(cur_frame_targets)
         else:
             batched_targets = []
-        
+
         # (TxN)xCxHxW, i.e.: if T=2, B=4, first 4 images will be the batch of first frame
         images = torch.cat([x.tensor for x in batched_images], dim=0)
 
         features = self.backbone(images)
         batched_outputs = self.sem_seg_head(features)
         return self.post_process(batched_images, batched_sequences, batched_targets, batched_outputs)
-    
+
     def post_process(self, batched_images, batched_sequence_in_frames, batched_targets, batched_outputs):
         num_frames = len(batched_images)
         if self.training:
@@ -252,11 +252,11 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
             # Batch_size X 20 x num_frames
             # matched_query_in_each_frame = -torch.ones(len(batched_targets[0]), 20, len(batched_targets), dtype=torch.int32)
             history = [{} for i in range(len(batched_targets[0]))]
-            
+
             targets = []
             for frame_id in range(num_frames):
                 images = batched_images[frame_id]
-                
+
                 # mask classification target
                 if len(batched_targets)>0:
                     gt_instances = batched_targets[frame_id]
@@ -283,10 +283,10 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                 else:
                     # remove this loss if not specified in `weight_dict`
                     losses.pop(k)
-            
+
             for k in list(losses.keys()):
                 all_frame_losses[f"{k}"] = losses.pop(k)
-            
+
             return all_frame_losses
         else:
             # test
@@ -347,7 +347,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
             gt_masks = targets_per_image.gt_masks.tensor.cuda()
             padded_masks = torch.zeros((gt_masks.shape[0], h_pad, w_pad), dtype=gt_masks.dtype, device=gt_masks.device)
             padded_masks[:, : gt_masks.shape[1], : gt_masks.shape[2]] = gt_masks
-            
+
             new_t = {
                     "labels": targets_per_image.gt_classes.cuda(),
                     "masks": padded_masks,
@@ -360,19 +360,19 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                     new_t[k] = v
             new_targets.append(new_t)
         return new_targets
-    
+
     # def postprocess_video_output_offline(self, all_frame_processed_resutls):
     #     assert len(all_frame_processed_resutls)==1, "Only support single video inference"
     #     all_frame_processed_resutls = all_frame_processed_resutls[0]
     #     reid_embed = [frame_results['instances'].reid_embed.cpu() for frame_results in all_frame_processed_resutls]
     #     num_frames = len(reid_embed)
     #     num_token_each_frame = reid_embed.shape[0]
-    #     distance_map = torch.zeros((num_frames, num_frames, num_token_each_frame, num_token_each_frame), 
+    #     distance_map = torch.zeros((num_frames, num_frames, num_token_each_frame, num_token_each_frame),
     #                                dtype=torch.float32, device=reid_embed[0].device)
     #     for pred_i, pred_reid_i in enumerate(reid_embed):
     #         for pred_j, pred_reid_j in enumerate(reid_embed):
     #             distance_map[pred_i, pred_j] = torch.einsum("nc,mc->nm", pred_reid_i, pred_reid_j)
-        
+
     def visualize_video_output(self, all_frame_processed_results):
         assert len(all_frame_processed_results)==1, "Only support single video inference"
         all_frame_processed_results = all_frame_processed_results[0]
@@ -400,8 +400,8 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
             else:
                 for k in instances_cur_frame.keys():
                     results[0][k].append(instances_cur_frame[k])
-        return results 
-                
+        return results
+
     def postprocess_video_output_online(self, all_frame_processed_results):
         """
         :return
@@ -423,8 +423,8 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                                         'idx_in_img': i}
                                        for i in range(len(frame_results['instances']))]
                 if len(instances_cur_frame)==0:
-                    continue 
-                
+                    continue
+
                 if len(instances_in_history)==0 and len(instances_cur_frame)>0:
                     instances_cur_frame = [{k: [v] for k, v in instances.items()} for instances in instances_cur_frame]
                     instances_in_history = instances_cur_frame
@@ -439,7 +439,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                     # similarity_matrix = F.log_softmax(similarity_matrix, dim=1)
                     # similarity_matrix = F.softmax(reid_embed_in_history.unsqueeze(2), reid_embed_in_cur_frame.T.unsqueeze(0), dim=1)
                     indices_in_prev_frame, indices_in_cur_frame = linear_sum_assignment(-similarity_matrix)
-                    
+
                     matched_instance_indices = []
                     for instance_idx_in_prev_frame, instance in enumerate(instances_in_history):
                         if instance_idx_in_prev_frame in indices_in_prev_frame:
@@ -449,7 +449,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                             instance_to_update = instances_cur_frame[instance_idx_in_cur_frame]
                             for k in instances_in_history[instance_idx_in_prev_frame].keys():
                                 instances_in_history[instance_idx_in_prev_frame][k].append(instance_to_update[k])
-                        
+
                     # add a new instance
                     for instance_idx, instance in enumerate(instances_cur_frame):
                         if instance_idx not in matched_instance_indices:
@@ -467,7 +467,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                         similarity_matrix[tracker_idx] = similairty_per_tracker.max(dim=0)[0].cpu().numpy()
                     indices_in_prev_frame, indices_in_cur_frame = linear_sum_assignment(-similarity_matrix)
                     matched_instance_indices = []
-                    
+
                     for instance_idx_in_prev_frame, instance in enumerate(instances_in_history):
                         if instance_idx_in_prev_frame in indices_in_prev_frame:
                             # update the instance
@@ -479,13 +479,13 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                             instance_to_update = instances_cur_frame[instance_idx_in_cur_frame]
                             for k in instances_in_history[instance_idx_in_prev_frame].keys():
                                 instances_in_history[instance_idx_in_prev_frame][k].append(instance_to_update[k])
-                        
+
                     # add a new instance
                     for instance_idx, instance in enumerate(instances_cur_frame):
                         if instance_idx not in matched_instance_indices:
                             new_instance_this_frame = {k: [v] for k, v in instance.items()}
                             instances_in_history.append(new_instance_this_frame)
-                        
+
                 elif method == 'false_positive_hungarian':
                     reid_embed_in_cur_frame = torch.stack([x['reid_embed'] for x in instances_cur_frame])
                     num_cur_frame = len(instances_cur_frame)
@@ -498,7 +498,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                         similarity_matrix[tracker_idx] = similairty_per_tracker.max(dim=0)[0].cpu().numpy()
                     indices_in_prev_frame, indices_in_cur_frame = linear_sum_assignment(-similarity_matrix)
                     matched_instance_indices = []
-                    
+
                     for instance_idx_in_prev_frame, instance in enumerate(instances_in_history):
                         if instance_idx_in_prev_frame in indices_in_prev_frame:
                             # update the instance
@@ -509,7 +509,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                             instance_to_update = instances_cur_frame[instance_idx_in_cur_frame]
                             for k in instances_in_history[instance_idx_in_prev_frame].keys():
                                 instances_in_history[instance_idx_in_prev_frame][k].append(instance_to_update[k])
-                        
+
                     # add a new instance
                     for instance_idx, instance in enumerate(instances_cur_frame):
                         if instance_idx not in matched_instance_indices:
@@ -526,7 +526,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
                         for instance_idx, instance_to_update in enumerate(instances_cur_frame):
                             instance_to_update = {k: v for k, v in instance_to_update.items()}
                             instance_to_update['scores'] = instance_to_update['scores']*instance_sequence['scores'][-1]*similarity_matrix[instance_idx_in_prev_frame][instance_idx].item()
-                            
+
                             instance_history_copy = {k: [t for t in v] for k,v in instance_sequence.items()}
                             for k in instance_history_copy.keys():
                                 instance_history_copy[k].append(instance_to_update[k])
@@ -547,9 +547,9 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
 
         if method == 'beam_search':
             instances_in_history = self.use_prior_in_amazon_task(instances_in_history)
-                                    
+
         return instances_in_history
-    
+
     def use_prior_in_amazon_task(self, instances):
         max_life_length = num_frames+1
         num_object = max(x['idx_in_img'][-1] for x in instances)+1
@@ -570,7 +570,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
         object_idx, life_time = linear_sum_assignment(-valid_score)
         instance_indices = [max_score_idx[object_idx[i], life_time[i]+2] for i in range(len(object_idx))]
         return [instances[t] for t in instance_indices]
-        
+
     def convert_to_ytvis_format(self, instances):
         """
         :param results: list of dict
@@ -596,7 +596,7 @@ class FrameMaskFormerV5(FrameMaskFormerV4):
             results_ytvis["pred_masks"].append(pred_masks)
             results_ytvis["reid_embed"].append(reid_embed)
         return results_ytvis
-    
+
     def semantic_inference(self, mask_cls, mask_pred):
         mask_cls = F.softmax(mask_cls, dim=-1)[..., :-1]
         mask_pred = mask_pred.sigmoid()
