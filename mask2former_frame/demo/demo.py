@@ -29,10 +29,10 @@ class uois_single_frame():
     def __init__(self):
         mp.set_start_method("spawn", force=True)
 
-        self.args = {'config_file': '/home/aurmr/workspaces/single_frame_embeddings_ws/src/UOIS-single-frame/configs/amazon/seq_frame_v6_v92_grid_search_06_bin_no_frame.yaml',
+        self.args = {'config_file': '/home/aurmr/workspaces/single_frame_embeddings_ws/src/UOIS_single_frame/configs/amazon/seq_frame_v6_v92_grid_search_06_bin_no_frame.yaml',
                 'test_type': 'ytvis',
                 'confidence_threshold': 0.5,
-                'opts': ['MODEL.WEIGHTS', '/home/aurmr/workspaces/single_frame_embeddings_ws/src/UOIS-single-frame/model/model_final.pth', 
+                'opts': ['MODEL.WEIGHTS', '/home/aurmr/workspaces/single_frame_embeddings_ws/src/UOIS_single_frame/model/model_final.pth', 
                 'DATALOADER.NUM_WORKERS', '0', 'INPUT.SAMPLING_FRAME_NUM', '1', 'MODEL.REID.TEST_MATCH_THRESHOLD', '0.2', 'MODEL.MASK_FORMER.TEST.INFERENCE_THRESHOLD', '0.6']}
 
         self.cfg = self.setup_cfg(self.args)
@@ -74,6 +74,6 @@ class uois_single_frame():
         return full_mask, embeddings_array
 
 object = uois_single_frame()
-img = cv2.imread("/home/aurmr/workspaces/single_frame_embeddings_ws/src/UOIS-single-frame/datasets/bin_4G_color_0005.png")
+img = cv2.imread("/home/aurmr/workspaces/single_frame_embeddings_ws/src/UOIS_single_frame/datasets/bin_4G_color_0005.png")
 full_mask, embeddings_array = object.inference(img)
 print(embeddings_array)
