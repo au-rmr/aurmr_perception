@@ -16,10 +16,10 @@ import csv
 
 import sys
 sys.path.append(
-    "/home/soofiyan_ws_force_calibration_suction_point/workspaces/aurmr_perception/UIE_main/mask2former_frame/")
+    "/home/soofiyan_ws_realsense_force_calibration/workspaces/aurmr_perception/UIE_main/mask2former_frame/")
 split = 'test_seen'
 camera = 'kinect'
-# save_root = '/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/UIE_main/result'
+# save_root = '/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/UIE_main/result'
 
 
 class CameraInfo():
@@ -222,7 +222,7 @@ class run_normal_std():
         rgb_image = rgb_img
         rgb_image = 0.5 * rgb_image + 0.5 * score_image
         rgb_image = rgb_image.astype(np.uint8)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/grasp1.png", rgb_image)
+        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/grasp1.png", rgb_image)
         # im = Image.fromarray(rgb_image)
 
         # sampled suctions
@@ -286,7 +286,7 @@ class run_normal_std():
 
         rgb_image = rgb_img.copy()
         cv2.circle(rgb_image, (int(round(center[0])), int(round(center[1]))), 1, (0, 0, 255), 5)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/grasp2.png", rgb_image)
+        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/grasp2.png", rgb_image)
 
         image_crop_sizes = np.array([[295*2, 167*2, 381*2, 219*2],
                                     [381*2, 167*2, 483*2, 215*2],
@@ -346,7 +346,7 @@ class run_normal_std():
         # rgb_img = cv2.resize(rgb_img, (640, 480), interpolation=cv2.INTER_AREA)
         
         
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/resized_cropped_mask.png", seg_mask)
+        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/resized_cropped_mask.png", seg_mask)
         # applying contour to get the edges of the mask
 
         # For RGB
@@ -539,49 +539,49 @@ class run_normal_std():
         score_w_trasnform = 1-np.max(ri)
         print("Conical Springs score with transformation",score_w_trasnform)
         
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/rgb_suction_points.png", rgb_img)
+        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/rgb_suction_points.png", rgb_img)
 
         name_object = input("name of the object: ")
         save_bool = input("Do you want to save these files in proper data or improper data? Type 1:proper or 2:improper or 0:discard --> ")
         if(int(save_bool) == 1):
             local_time = time.strftime("%Y%m%d-%H%M%S")
             try:
-                os.makedirs("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time))
+                os.makedirs("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time))
             except:
                 pass
             my_dict = {"suction deformation scor without trasnformation": score_wo_trasnform, "suction deformation scor with trasnformation": score_w_trasnform, "center_pixel": center}
-            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time)+"/rgb.png", rgb_img)
-            np.save("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time)+"/depth.npy", depth)
-            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time)+"/mask.png", seg_mask)
-            with open('/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/'+str(name_object)+"/"+str(local_time)+'/suction_properties.csv', 'w') as f:
+            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time)+"/rgb.png", rgb_img)
+            np.save("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time)+"/depth.npy", depth)
+            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/"+str(name_object)+"/"+str(local_time)+"/mask.png", seg_mask)
+            with open('/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Proper_Data/'+str(name_object)+"/"+str(local_time)+'/suction_properties.csv', 'w') as f:
                 w = csv.DictWriter(f, my_dict.keys())
                 w.writeheader()
                 w.writerow(my_dict)
         elif(int(save_bool) == 2):
             local_time = time.strftime("%Y%m%d-%H%M%S")
             try:
-                os.makedirs("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time))
+                os.makedirs("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time))
             except:
                 pass
             my_dict = {"suction deformation scor without trasnformation": score_wo_trasnform, "suction deformation scor with trasnformation": score_w_trasnform, "center_pixel": center}
-            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time)+"/rgb.png", rgb_img)
-            np.save("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time)+"/depth.npy", depth)
-            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time)+"/mask.png", seg_mask)
-            with open('/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/'+str(name_object)+"/"+str(local_time)+'/suction_properties.csv', 'w') as f:
+            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time)+"/rgb.png", rgb_img)
+            np.save("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time)+"/depth.npy", depth)
+            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/"+str(name_object)+"/"+str(local_time)+"/mask.png", seg_mask)
+            with open('/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Improper_Data/'+str(name_object)+"/"+str(local_time)+'/suction_properties.csv', 'w') as f:
                 w = csv.DictWriter(f, my_dict.keys())
                 w.writeheader()
                 w.writerow(my_dict)
         elif(int(save_bool) == 0):
             local_time = time.strftime("%Y%m%d-%H%M%S")
             try:
-                os.makedirs("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time))
+                os.makedirs("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time))
             except:
                 pass
             my_dict = {"suction deformation scor without trasnformation": score_wo_trasnform, "suction deformation scor with trasnformation": score_w_trasnform, "center_pixel": center}
-            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time)+"/rgb.png", rgb_img)
-            np.save("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time)+"/depth.npy", depth)
-            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time)+"/mask.png", seg_mask)
-            with open('/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/'+str(name_object)+"/"+str(local_time)+'/suction_properties.csv', 'w') as f:
+            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time)+"/rgb.png", rgb_img)
+            np.save("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time)+"/depth.npy", depth)
+            cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/"+str(name_object)+"/"+str(local_time)+"/mask.png", seg_mask)
+            with open('/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Data_Collection_Suction_Cup_Deformation/Trash/'+str(name_object)+"/"+str(local_time)+'/suction_properties.csv', 'w') as f:
                 w = csv.DictWriter(f, my_dict.keys())
                 w.writeheader()
                 w.writerow(my_dict)
@@ -597,7 +597,7 @@ class run_normal_std():
         print("Perimter Springs score ", score)
         # seconds = time.time()
         # local_time = time.ctime(seconds)
-        # with open('/home/aurmr/workspaces/soofiyan_ws_force_calibration_suction_point/src/segnetv2_mask2_former/Mask_Results/Suction_Cup_Points_Data/suction_point_score.csv', mode='w') as suction_file:
+        # with open('/home/aurmr/workspaces/soofiyan_ws_realsense_force_calibration/src/segnetv2_mask2_former/Mask_Results/Suction_Cup_Points_Data/suction_point_score.csv', mode='w') as suction_file:
         #     employee_writer = csv.writer(suction_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         #     employee_writer.writerow([local_time, ])
@@ -615,9 +615,9 @@ class run_normal_std():
 
 # if __name__ == "__main__":
     # input_image_rgb = cv2.imread(
-    #     "/home/soofiyan_ws_force_calibration_suction_point/workspaces/aurmr_perception/UIE_main/data_full_pod/Dataset/rgbImages/Kinect/Cropped_RGB/crop_rgb_3H.png")
+    #     "/home/soofiyan_ws_realsense_force_calibration/workspaces/aurmr_perception/UIE_main/data_full_pod/Dataset/rgbImages/Kinect/Cropped_RGB/crop_rgb_3H.png")
     # input_image_depth = np.load(
-    #     "/home/soofiyan_ws_force_calibration_suction_point/workspaces/aurmr_perception/UIE_main/data_full_pod/Dataset/depthImages/Kinect/Crop_depth_numpy/crop_depth_3H.npy")
+    #     "/home/soofiyan_ws_realsense_force_calibration/workspaces/aurmr_perception/UIE_main/data_full_pod/Dataset/depthImages/Kinect/Crop_depth_numpy/crop_depth_3H.npy")
 
     # object = SegnetV2()
     # masks, mask_crop = object.mask_generator(input_image_rgb)
