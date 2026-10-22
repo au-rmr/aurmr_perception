@@ -252,8 +252,8 @@ class FrameMaskFormer(nn.Module):
                 batched_inputs_cur_frame = [x for x in batched_sequences]
             elif type(batched_sequences[0]) == dict:
                 # test ytvis
-                batched_inputs_cur_frame = [{'image': v['image'][frame_idx], 
-                                             'height': v['height'], 
+                batched_inputs_cur_frame = [{'image': v['image'][frame_idx],
+                                             'height': v['height'],
                                              'width': v['width']} for v in batched_sequences]
             else:
                 # TODO change to ytvis format
@@ -265,7 +265,7 @@ class FrameMaskFormer(nn.Module):
             images = [x["image"].to(self.device) for x in batch_cur_frame]
             images = [(x - self.pixel_mean) / self.pixel_std for x in images]
             images = ImageList.from_tensors(images, self.size_divisibility)
-            
+
             batched_images.append(images)
             if self.training:
                 batched_targets.append([x[frame_idx]["instances"].to(self.device) for x in batched_sequences])
@@ -280,15 +280,15 @@ class FrameMaskFormer(nn.Module):
                     frame_memory = None
                 else:
                     raise NotImplementedError
-            else:   
+            else:
                 frame_memory = None
             features = self.backbone(images.tensor)
 
             outputs = self.sem_seg_head(features, frame_memory)
             batched_outputs.append(outputs)
-        
+
         return self.post_process(batched_images, batched_sequences_in_frames, batched_targets, batched_outputs)
-    
+
     def fill_matching_matrix(self, indices, matched_query_in_each_frame, frame_idx):
         for batch_idx in range(len(indices)):
             for gt_idx in range(len(indices[batch_idx][1])):
@@ -340,7 +340,7 @@ class FrameMaskFormer(nn.Module):
                     query_negative_pairs_for_same_batch.append((query1, query2))
 
         return query_positive_pairs_for_same_object, query_negative_pairs_for_same_batch
-    
+
     def reid_loss(self, matched_queries_in_each_frame, batched_outputs):
         """
         Args:
@@ -361,7 +361,7 @@ class FrameMaskFormer(nn.Module):
             positive_pairs[0].append(batched_outputs[frame_idx_1]["reid_embed"][batch_idx_1, query_idx_1, :])
             positive_pairs[1].append(batched_outputs[frame_idx_2]["reid_embed"][batch_idx_2, query_idx_2, :])
         positive_pairs = [torch.stack(x, dim=0) for x in positive_pairs]
-        
+
         # negative pairs
         negative_pairs = [[], []]
         for query_1, query_2 in query_negative_pairs_for_same_batch:
@@ -387,8 +387,8 @@ class FrameMaskFormer(nn.Module):
         negative_labels = -torch.ones(negative_num, device=self.device)
         positive_reid_loss = F.cosine_embedding_loss(positive_pairs[0], positive_pairs[1], positive_labels, reduction="mean")
         negative_reid_loss = F.cosine_embedding_loss(negative_pairs[0], negative_pairs[1], negative_labels, reduction="none")
-        topk_negative_loss = torch.topk(negative_reid_loss, 
-                                    k=min(int(positive_num/self.reid_fg_ratio-positive_num), negative_num), 
+        topk_negative_loss = torch.topk(negative_reid_loss,
+                                    k=min(int(positive_num/self.reid_fg_ratio-positive_num), negative_num),
                                     largest=True)[0]
         return positive_reid_loss, topk_negative_loss.mean()
 
@@ -401,7 +401,7 @@ class FrameMaskFormer(nn.Module):
             for frame_id in range(self.num_frames):
                 images = batched_images[frame_id]
                 outputs = batched_outputs[frame_id]
-                
+
                 # mask classification target
                 if len(batched_targets)>0:
                     gt_instances = batched_targets[frame_id]
@@ -423,10 +423,10 @@ class FrameMaskFormer(nn.Module):
                     else:
                         # remove this loss if not specified in `weight_dict`
                         losses.pop(k)
-                
+
                 for k in list(losses.keys()):
                     all_frame_losses[f"frame_{frame_id}_{k}"] = losses.pop(k)
-            
+
             if self.reid_loss_on:
                 # generate contrastive loss for all frames
                 reid_positive_loss, reid_negative_loss = self.reid_loss(matched_query_in_each_frame, batched_outputs)
@@ -501,19 +501,19 @@ class FrameMaskFormer(nn.Module):
                                         'frame_index': frame_idx}
                                        for i in range(len(frame_results['instances']))]
                 if len(instances_cur_frame)==0:
-                    continue 
-                
+                    continue
+
                 if len(instances_in_history)==0 and len(instances_cur_frame)>0:
                     instances_cur_frame = [{k: [v] for k, v in instances.items()} for instances in instances_cur_frame]
                     instances_in_history = instances_cur_frame
                     continue
-                
+
                 # find the best match for each instance in the current frame
                 reid_embed_in_history = torch.stack([x['reid_embed'][-1] for x in instances_in_history])
                 reid_embed_in_cur_frame = torch.stack([x['reid_embed'] for x in instances_cur_frame])
                 similarity_matrix = F.cosine_similarity(reid_embed_in_history.unsqueeze(2), reid_embed_in_cur_frame.T.unsqueeze(0), dim=1)
                 indices_in_prev_frame, indices_in_cur_frame = linear_sum_assignment(-similarity_matrix)
-                
+
                 matched_instance_indices = []
                 for instance_idx_in_prev_frame, instance in enumerate(instances_in_history):
                     if instance_idx_in_prev_frame in indices_in_prev_frame:
@@ -523,15 +523,15 @@ class FrameMaskFormer(nn.Module):
                         instance_to_update = instances_cur_frame[instance_idx_in_cur_frame]
                         for k in instances_in_history[instance_idx_in_prev_frame].keys():
                             instances_in_history[instance_idx_in_prev_frame][k].append(instance_to_update[k])
-                    
+
                 # add a new instance
                 for instance_idx, instance in enumerate(instances_cur_frame):
                     if instance_idx not in matched_instance_indices:
                         new_instance_this_frame = {k: [v] for k, v in instance.items()}
                         instances_in_history.append(new_instance_this_frame)
-                
+
         return instances_in_history
-    
+
     def convert_to_ytvis_format(self, instances):
         """
         :param results: list of dict
@@ -549,7 +549,7 @@ class FrameMaskFormer(nn.Module):
             results_ytvis["pred_labels"].append(pred_label)
             results_ytvis["pred_masks"].append(pred_masks)
         return results_ytvis
-    
+
     def prepare_targets(self, targets, images):
         h_pad, w_pad = images.tensor.shape[-2:]
         new_targets = []
@@ -670,7 +670,7 @@ class FrameMaskFormer(nn.Module):
         result.scores = scores_per_image * mask_scores_per_image
         result.pred_classes = labels_per_image
 
-        above_thresh_indices = torch.where(result.scores>0.6)[0]
+        above_thresh_indices = torch.where(result.scores>0.6)[0].cpu()
         for k in result._fields.keys():
             result._fields[k] = result._fields[k][above_thresh_indices]
         return result
