@@ -1,1 +1,3 @@
 *.pth
+Mask_Results/*
+Mask_Results/*.png
