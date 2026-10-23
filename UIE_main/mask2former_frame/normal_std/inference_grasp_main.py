@@ -11,12 +11,12 @@ import scipy.io as scio
 from normal_std.policy import estimate_suction
 import math
 import matplotlib.pyplot as plt
-sys.path.append("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/mask2former_frame")
+sys.path.append("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/UIE_main/mask2former_frame")
 
 
 split = 'test_seen'
 camera = 'kinect'
-save_root = '/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/result'
+save_root = '/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/UIE_main/result'
 
 
 class CameraInfo():
@@ -94,7 +94,7 @@ class run_normal_std():
         # Generate gaussian
         size = 2 * tmpSize + 1
         x = np.arange(0, size, 1, float)
-        # print('x:', x.shape)
+        # print('x:', x.shape)l
         y = x[:, np.newaxis]
         # print('x:', x.shape)
         x0 = y0 = size // 2
@@ -118,8 +118,8 @@ class run_normal_std():
         count = 0
         # reading the depth mask and rgb file, also reading the meta file for intrinsic parameters
         # segmask_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label0.png"
-        # depth_file = "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/depth/depth_2.png"
-        # rgb_file = "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
+        # depth_file = "/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/depth/depth_2.png"
+        # rgb_file = "/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
     
         # segmask_file = "/home/soofiyanatar/datasets/Full_Dataset/label_segnet.png"
         # depth_file = "/home/soofiyanatar/datasets/Full_Dataset/depth_segnet.png"
@@ -127,9 +127,9 @@ class run_normal_std():
 
         # Getting the depth image in meters and segmentation mask in its original state (grayscale)
         # depth_img = cv2.cvtColor(depth_img, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/depth.png", depth_img)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/mask_first.png", mask)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/rgb_first.png", rgb_img)
+        cv2.imwrite("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/depth.png", depth_img)
+        cv2.imwrite("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/mask_first.png", mask)
+        cv2.imwrite("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/rgb_first.png", rgb_img)
 
         depth = depth_img.astype(np.float32)/1000.0
         print('depth shape', depth.shape)
@@ -206,9 +206,9 @@ class run_normal_std():
         # (thresh, binary_mask) = cv2.threshold(
         #     seg_mask, 1, 255, cv2.THRESH_BINARY)
         # binary_mask = Image.fromarray(binary_mask)
-        # binary_mask.save("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/binary_mask.png")
+        # binary_mask.save("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/binary_mask.png")
         # binary_mask_save = binary_mask.astype(np.uint8)
-        # cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/binary_mask.png", binary_mask_save)
+        # cv2.imwrite("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/binary_mask.png", binary_mask_save)
 
         # kernel = np.ones((4, 4), np.uint8)
         # seg_mask = cv2.erode(seg_mask, kernel, iterations=1)
@@ -263,7 +263,7 @@ class run_normal_std():
         rgb_image = rgb_img
         rgb_image = 0.5 * rgb_image + 0.5 * score_image
         rgb_image = rgb_image.astype(np.uint8)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/grasp1.png", rgb_image)
+        cv2.imwrite("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/grasp1.png", rgb_image)
         # im = Image.fromarray(rgb_image)
 
         # For visulaizing using cv2 in realtime
@@ -311,8 +311,8 @@ class run_normal_std():
         if(depth[(idx0[suction_number]), int(idx1[suction_number])] < 1.3):
             self.drawGaussian(score_image, [
                 idx1[suction_number], idx0[suction_number]], 1.0, 3)
-            self.drawGaussian(
-                score_image, [int(center[0]), int(center[1])], 0.5, 3)
+            # self.drawGaussian(
+            #     score_image, [int(center[0]), int(center[1])], 0.5, 3)
         euler_angle = [math.asin(suction_directions[suction_number][0]), math.asin(
             suction_directions[suction_number][1])]
         # print(center_3D)
@@ -331,7 +331,7 @@ class run_normal_std():
         rgb_image = rgb_img
         rgb_image = 0.5 * rgb_image + 0.5 * score_image
         rgb_image = rgb_image.astype(np.uint8)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/grasp2.png", rgb_image)
+        cv2.imwrite("/home/aurmr/workspaces/uois_soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/grasp2.png", rgb_image)
         # im = Image.fromarray(rgb_image)
 
         # visu_dir = save_root
