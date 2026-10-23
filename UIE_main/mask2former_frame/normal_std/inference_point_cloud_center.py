@@ -190,7 +190,9 @@ class run_normal_std():
         pointx = (center[0] - cx) * pointz / fx
         pointy = (center[1] - cy) * pointz / fy
         center_3D = (pointx, pointy, pointz)
+
         best_point_return = [center_3D[0], center_3D[1], 1.081]
+        best_point_return[1] += 0.005
         euler_angle = [0.0, 0.0]
 
 
@@ -282,7 +284,7 @@ class run_normal_std():
         rgb_image = rgb_image.astype(np.uint8)
         
 
-        best_point_return = [best_point[0], best_point[1], 1.081]
+        # best_point_return = [best_point[0], best_point[1], 1.081]
 
         rgb_image = rgb_img.copy()
         cv2.circle(rgb_image, (int(round(center[0])), int(round(center[1]))), 1, (0, 0, 255), 5)
@@ -290,15 +292,15 @@ class run_normal_std():
 
         image_crop_sizes = np.array([[295*2, 167*2, 381*2, 219*2],
                                     [381*2, 167*2, 483*2, 215*2],
-                                    [483*2, 167*2, 585*2, 214*2],
+                                    [485*2, 192*2, 584*2, 239*2],
                                     [585*2, 163*2, 673*2, 210*2],
                                     [296*2, 232*2, 384*2, 272*2],
                                     [382*2, 232*2, 485*2, 268*2],
-                                    [485*2, 232*2, 586*2, 268*2],
+                                    [486*2, 254*2, 585*2, 293*2],
                                     [586*2, 232*2, 674*2, 263*2],
                                     [298*2, 286*2, 387*2, 370*2],
                                     [384*2, 286*2, 487*2, 365*2],
-                                    [485*2, 284*2, 587*2, 366*2],
+                                    [484*2, 309*2, 587*2, 392*2],
                                     [586*2, 283*2, 677*2, 362*2],
                                     [299*2, 384*2, 387*2, 422*2],
                                     [387*2, 387*2, 489*2, 417*2],
@@ -378,6 +380,7 @@ class run_normal_std():
         # (center), (width, height), angle = rotrect
         # This is the center obtained through the coutnout function and this is pixel of the segmentation mask
         center = np.array([int(round(center[0] - image_crop_ind[0])), int(round(center[1] - image_crop_ind[1]))])
+        # center[1] += center[1]*0.1
         print("center", center)
         
         print(depth[center[1], center[0]])
@@ -396,7 +399,7 @@ class run_normal_std():
         '''
         The z coordinate of object centroid is of no use because in reprojection this depth value is not useful
         '''
-        object_centroid[1] += 0.02
+        object_centroid[1] += 0.005
         object_centroid[2] = 0.0
         '''
         Base coordinate array is the radius of suction cup and this is basically the right point of the suction cup
@@ -520,7 +523,7 @@ class run_normal_std():
         ri = np.array([])
         for i in range(len(suction_projections)):
             value = min(1, np.abs(
-                (suction_projections[i][2]-minimum_suction_point)*math.cos(x_axis_angle*math.pi/180.0)*math.cos(y_axis_angle*math.pi/180.0))/(0.023))
+                (suction_projections[i][2]-minimum_suction_point)/(0.023)))
             ri = np.append(ri, value)
 
         
