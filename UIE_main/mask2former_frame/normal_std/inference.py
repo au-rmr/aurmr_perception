@@ -10,7 +10,9 @@ from PIL import Image
 import scipy.io as scio
 from normal_std.policy import estimate_suction
 import math
-from mask2former_frame.demo.segnetv2_demo import SegnetV2
+sys.path.insert(1,
+    "/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/mask2former_frame")
+from demo.segnetv2_demo import SegnetV2
 ######################################################################################################
 object = SegnetV2()
 masks = object.mask_generator(

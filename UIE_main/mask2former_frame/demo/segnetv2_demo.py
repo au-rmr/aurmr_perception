@@ -17,7 +17,9 @@ import glob
 import multiprocessing as mp
 import os
 
-from demo.predictor import VisualizationDemo
+import sys
+sys.path.insert(1,"/home/aurmr/workspaces/segnetv2_normal_grasp/aurmr_perception/UIE_main/mask2former_frame/demo")
+from predictor import VisualizationDemo
 
 WINDOW_NAME = "mask2former demo"
 
@@ -70,10 +72,10 @@ class SegnetV2():
         img = read_image(input_image, format="BGR")
         predictions, visualized_output, masks = self.demo.run_on_image(
             img)
-        # for i in masks:
-        #     cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-        #     cv2.imshow(WINDOW_NAME, i)
-        #     cv2.waitKey(0)  # esc to quit
+        for i in masks:
+            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+            cv2.imshow(WINDOW_NAME, i)
+            cv2.waitKey(0)  # esc to quit
         return masks
 
 

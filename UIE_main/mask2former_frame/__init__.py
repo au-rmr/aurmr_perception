@@ -18,6 +18,3 @@ from .data_frame import (
     build_detection_test_loader,
     get_detection_dataset_dicts,
 )
-
-from .demo.visualizer import TrackVisualizer
-from .demo.predictor import VisualizationDemo
