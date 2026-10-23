@@ -20,6 +20,8 @@ def build_model(cfg):
     """
     meta_arch = cfg.MODEL.META_ARCHITECTURE
     model = META_ARCH_REGISTRY.get(meta_arch)(cfg)
+    print(cfg)
+    #print(torch.cuda.is_available())
     model.to(torch.device(cfg.MODEL.DEVICE))
     _log_api_usage("modeling.meta_arch." + meta_arch)
     return model
