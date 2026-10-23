@@ -15,10 +15,9 @@ from detectron2.structures import Instances
 from detectron2.utils.video_visualizer import VideoVisualizer
 from detectron2.utils.visualizer import ColorMode, Visualizer
 
-import numpy as np
 
 class VisualizationDemo(object):
-    def __init__(self, cfg, instance_mode=ColorMode.IMAGE, parallel=False, test_type="coco"):
+    def __init__(self, cfg, instance_mode=ColorMode.IMAGE, parallel=False, test_type="ytvis"):
         """
         Args:
             cfg (CfgNode):
@@ -69,8 +68,13 @@ class VisualizationDemo(object):
                 vis_output = visualizer.draw_instance_predictions(predictions=instances)
 
         return predictions, vis_output
+        
+        
+        
+        
     def run_on_sequence(self, sequence):
         if self.test_type=='coco':
+                  
             return self.run_on_sequence_coco(sequence)
         elif self.test_type=='ytvis':
             return self.run_on_sequence_ytvis(sequence)
@@ -87,14 +91,16 @@ class VisualizationDemo(object):
         """
         vis_output = []
         predictions = self.predictor(images)
+
         # Convert image from OpenCV BGR format to Matplotlib RGB format.
         for frame_idx, image in enumerate(images):
+
             image = image[:, :, ::-1]
             visualizer = Visualizer(image, self.metadata, instance_mode=self.instance_mode)
-            instances = predictions[0][frame_idx]["instances"].to(self.cpu_device)
-            vis_output.append(visualizer.draw_instance_predictions(predictions=instances))
+            #instances = predictions[0][frame_idx]["instances"].to(self.cpu_device)
+            # vis_output.append(visualizer.draw_instance_predictions(predictions=instances))
 
-        return predictions, vis_output
+        return predictions['pred_masks']
 
     def run_on_sequence_ytvis(self, frames):
         """
@@ -105,41 +111,44 @@ class VisualizationDemo(object):
             predictions (dict): the output of the model.
             vis_output (VisImage): the visualized image output.
         """
-        vis_output = None
-        predictions = self.predictor(frames)
-        image_size = predictions["image_size"]
-        pred_scores = predictions["pred_scores"]
-        pred_labels = predictions["pred_labels"]
-        pred_masks = predictions["pred_masks"]
+        if len(frames)>1:
+            
+            vis_output = None
+            predictions = self.predictor(frames)
+            image_size = predictions["image_size"]
+            pred_scores = predictions["pred_scores"]
+            pred_labels = predictions["pred_labels"]
+            pred_masks = predictions["pred_masks"]
+            
+            frame_masks = list(zip(*pred_masks))
+            total_vis_output = []
+            total_pred_labels =[]
+            for frame_idx in range(len(frames)):
+                frame = frames[frame_idx][:, :, ::-1]
+                visualizer = TrackVisualizer(frame, self.metadata, instance_mode=self.instance_mode)
+                ins = Instances(image_size)
+                
+                if len(pred_scores) > 0:
+                    ins.scores = pred_scores
+                    ins.pred_classes = pred_labels
+                    ins.pred_masks = torch.stack(frame_masks[frame_idx], dim=0)
 
-        frame_masks = list(zip(*pred_masks))
-        total_vis_output = []
-        masks = []
-        for frame_idx in range(len(frames)):
-            frame = frames[frame_idx][:, :, ::-1]
-            visualizer = TrackVisualizer(frame, self.metadata, instance_mode=self.instance_mode)
-            ins = Instances(image_size)
-            if len(pred_scores) > 0:
-                ins.scores = pred_scores
-                ins.pred_classes = pred_labels
-                ins.pred_masks = torch.stack(frame_masks[frame_idx], dim=0)
-                individual_mask = []
-                for i in range(len(np.asarray(frame_masks[frame_idx]))):
-                    mask_single = np.asarray(frame_masks[frame_idx])[i]
-                    count = np.unique(mask_single)
-                    # print(len(count))
-                    if(len(count) > 1):
-                        individual_mask.append(np.asarray(frame_masks[frame_idx])[i])
-                masks.append(individual_mask)
-            vis_output = visualizer.draw_instance_predictions(predictions=ins)
-            total_vis_output.append(vis_output)
-        instances = predictions["pred_masks"]
-        # masks = []
-        # for i in range(len(instances)):
-        #     masks.append(np.asarray(instances[i]))
+                vis_output = visualizer.draw_instance_predictions(predictions=ins)
+                total_pred_labels.append(pred_labels)
+                total_vis_output.append(vis_output)
+        else:
+            pred_labels=[0]  
+            pred_scores = [1]
+            vis_output = None
+            predictions = self.predictor(frames)
+            #print(predictions[0]["instances"].pred_masks)
+            mask_array = predictions[0]['instances'].pred_masks.to("cpu").numpy()
+            num_instances = mask_array.shape
+            image_size = (num_instances[1], num_instances[2])
+  
 
-
-        return predictions, total_vis_output, masks
+        return predictions #, total_vis_output, total_pred_labels
+ 
     
     def _frame_from_video(self, video):
         while video.isOpened():

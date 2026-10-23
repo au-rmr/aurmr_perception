@@ -1,5 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 # Modified by Bowen Cheng from: https://github.com/facebookresearch/detectron2/blob/master/demo/demo.py
+
 import argparse
 import glob
 import multiprocessing as mp
@@ -7,244 +8,191 @@ import os
 
 # fmt: off
 import sys
-sys.path.insert(1, os.path.join(sys.path[0], '../..'))
+sys.path.append('/home/aurmr/workspaces/test_ros_bare_bone/src/aurmr_perception/VITA_my/mask2former_frame/demo/../..')
+# print(sys.path)
+#sys.path.insert(1, os.path.join(sys.path[0], '../..'))
+#print(sys.path)
 # fmt: on
 
 import tempfile
 import time
 import warnings
+warnings.filterwarnings('ignore')
+
 
 import cv2
 import numpy as np
 import tqdm
+from PIL import Image
+
 
 from detectron2.config import get_cfg
 from detectron2.data.detection_utils import read_image
 from detectron2.projects.deeplab import add_deeplab_config
 from detectron2.utils.logger import setup_logger
-
 from mask2former import add_maskformer2_config
 from mask2former_frame import add_frame_config
-from predictor import VisualizationDemo
+
 
 from vita import (
     add_vita_config,
 )
+sys.path.append('/home/aurmr/workspaces/test_ros_bare_bone/src/aurmr_perception/VITA_my/mask2former_frame/demo')
+from predictor import VisualizationDemo
+
+
 
 # constants
 WINDOW_NAME = "mask2former demo"
 
-
-def setup_cfg(args):
+def setup_cfg(config_file,opts):
     # load config from file and command-line arguments
     cfg = get_cfg()
     add_deeplab_config(cfg)
     add_maskformer2_config(cfg)
     add_vita_config(cfg)
     add_frame_config(cfg)
-    cfg.merge_from_file(args.config_file)
-    cfg.merge_from_list(args.opts)
+    cfg.merge_from_file(config_file)
+    cfg.merge_from_list(opts)
     cfg.freeze()
     return cfg
 
 
-def get_parser():
-    parser = argparse.ArgumentParser(description="maskformer2 demo for builtin configs")
-    parser.add_argument(
-        "--config-file",
-        default="configs/coco/panoptic-segmentation/maskformer2_R50_bs16_50ep.yaml",
-        metavar="FILE",
-        help="path to config file",
-    )
-    parser.add_argument("--webcam", action="store_true", help="Take inputs from webcam.")
-    parser.add_argument("--video-input", help="Path to video file.")
-    parser.add_argument(
-        "--sequence",
-        nargs="+",
-        help="A list of space separated input sequence folder; "
-        "or a single glob pattern such as 'directory/*'",
-    )
-    parser.add_argument(
-        "--frame_name",
-        nargs="+",
-        help="A list of space separated input frame name in sequence folder; "
-        "or a single glob pattern such as '*'",
-    )
-    parser.add_argument(
-        "--output",
-        help="A file or directory to save output visualizations. "
-        "If not given, will show output in an OpenCV window.",
-    )
-    parser.add_argument(
-        "--test_type",
-        help="test as coco or ytvis"
-    )
-
-    parser.add_argument(
-        "--confidence-threshold",
-        type=float,
-        default=0.5,
-        help="Minimum score for instance predictions to be shown",
-    )
-    parser.add_argument(
-        "--opts",
-        help="Modify config options using the command-line 'KEY VALUE' pairs",
-        default=[],
-        nargs=argparse.REMAINDER,
-    )
-    return parser
+        
+def is_black_image(image):
+	width, height = image.shape
+	for x in range(width):
+	    for y in  range(height):
+	        if image[x,y] != 0:
+	           return False
+	return True
 
 
-def test_opencv_video_format(codec, file_ext):
-    with tempfile.TemporaryDirectory(prefix="video_format_test") as dir:
-        filename = os.path.join(dir, "test_file" + file_ext)
-        writer = cv2.VideoWriter(
-            filename=filename,
-            fourcc=cv2.VideoWriter_fourcc(*codec),
-            fps=float(30),
-            frameSize=(10, 10),
-            isColor=True,
-        )
-        [writer.write(np.zeros((10, 10, 3), np.uint8)) for _ in range(30)]
-        writer.release()
-        if os.path.isfile(filename):
-            return True
-        return False
+def main():
+    #config_file = '/home/aurmr/workspaces/tejoram/VITA_my/Yi_drive_data/VITA_my-20230117T202349Z-001/VITA_my/frame_R50_v26_c17_csf/frame_R50_v26_c17_csf.yaml'
+    config_file = '/home/aurmr/workspaces/test_ros_bare_bone/src/aurmr_perception/VITA_my/configs/amazon/frame_R50_v26_c17_csf.yaml'    
+    sequence = "/home/aurmr/workspaces/test_ros_bare_bone/src/aurmr_perception/VITA_my/data/bin_3F/"
+    #frame_names = ['bin_3F_color_0000.png', 'bin_3F_color_0001.png', 'bin_3F_color_0002.png', 'bin_3F_color_0003.png', 'bin_3F_color_0004.png', 'bin_3F_color_0005.png']
 
+    # Get a list of all the files in the directory
+    file_list = os.listdir(sequence)
 
-if __name__ == "__main__":
+    # Filter the list to only include image files
+    image_list = [f for f in file_list if f.endswith('.png') or f.endswith('.jpg')]
+
+    # Sort the list in alphabetical order
+    image_list.sort()
+
+    # Generate the frame_names list
+    frame_names = [os.path.join(sequence, f) for f in image_list]
+
+    frame_name = " ".join(frame_names)
+    output = '/home/aurmr/workspaces/test_ros_bare_bone/src/aurmr_perception/VITA_my/vis_real/frame_R50_v26_c17_csf/scene_03_full'
+    test_type = 'ytvis'
+    opts = ["MODEL.WEIGHTS", "/home/aurmr/workspaces/test_ros_bare_bone/src/aurmr_perception/VITA_my/model_final.pth", "DATALOADER.NUM_WORKERS", "0", "INPUT.SAMPLING_FRAME_NUM", len(frame_names)]
+    
+
     mp.set_start_method("spawn", force=True)
-    args = get_parser().parse_args()
-    setup_logger(name="fvcore")
-    logger = setup_logger()
-    logger.info("Arguments: " + str(args))
 
-    cfg = setup_cfg(args)
+    cfg = setup_cfg(config_file, opts)
 
-    demo = VisualizationDemo(cfg, test_type=args.test_type)
+    demo = VisualizationDemo(cfg, test_type)
+    
+    
 
-    if args.sequence:
-        if len(args.sequence) == 1:
-            args.sequence = glob.glob(os.path.expanduser(args.sequence[0]))
-            assert args.sequence, "The sequence path(s) was not found"
-        for sequence_path in tqdm.tqdm(args.sequence, disable=not args.output):
-            if len(args.frame_name) == 1:
-                sequence_frame = glob.glob(os.path.join(sequence_path, args.frame_name[0]))
-                assert sequence_frame, "The frame name(s) was not found"
+    if sequence:
+        # print(sequence[0])
+        # if len(sequence) == 1:
+        #     sequence = glob.glob(os.path.expanduser(sequence[0]))
+        #     assert sequence, "The sequence path(s) was not found"
+        sequence_path = sequence
+        # for sequence_path in tqdm.tqdm(sequence, disable=not output):
+        # if len(frame_name) == 1:
+        #     sequence_frame = glob.glob(os.path.join(sequence_path, frame_name[0]))
+
+        #     assert sequence_frame, "The frame name(s) was not found"
+        # else:
+        sequence_frame = []
+
+        for frame in frame_names:
+
+            if os.path.exists(os.path.join(sequence_path, frame)):
+                sequence_frame.append(os.path.join(sequence_path, frame))
             else:
-                sequence_frame = []
-                for frame_name in args.frame_name:
-                    if os.path.exists(os.path.join(sequence_path, frame_name)):
-                        sequence_frame.append(os.path.join(sequence_path, frame_name))
-                    else:
-                        x = glob.glob(os.path.join(sequence_path, frame_name))
-                        assert len(x) == 1, "The frame name(s) was not found"
-                        sequence_frame.append(x[0])
-            
-            sequence_imgs = []
-            for frame_path in sequence_frame:
-                print(frame_path)
-                # use PIL, to be consistent with evaluation
-                img = read_image(frame_path, format="BGR")
-                sequence_imgs.append(img)
-            start_time = time.time()
-            predictions, visualized_output, masks = demo.run_on_sequence(sequence_imgs)
-            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-            for i in range(len(masks)):
-                for j in range(len(masks[i])):
-                    try:
-                        cv2.imshow(WINDOW_NAME, np.array(masks[i][j])*100)
-                        if cv2.waitKey(0) == 27:
-                            break
-                    except:
-                        pass
+                x = glob.glob(os.path.join(sequence_path, frame))
+                assert len(x) == 1, "The frame name(s) was not found"
+                sequence_frame.append(x[0])
+                        
+        sequence_imgs = []
 
-            logger.info(
-                "{}: {} in {:.2f}s".format(
-                    sequence_path,
-                    "detected {} instances".format(len(predictions["instances"]))
-                    if "instances" in predictions
-                    else "finished",
-                    time.time() - start_time,
-                )
-            )
-            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-            print(int(args.opts[5]))
-            for i in range(int(args.opts[5])):
-                try:
-                    cv2.imshow(WINDOW_NAME, visualized_output[i].get_image()[:, :, ::-1])
-                    if cv2.waitKey(0) == 27:
-                        break
-                except:
-                    pass
+        for frame_path in sequence_frame:
 
-            # for frame_idx, frame_path in enumerate(sequence_frame):
-            #     if args.output:
-            #         if os.path.isdir(args.output):
-            #             assert os.path.isdir(args.output), args.output
-            #             out_filename = os.path.join(args.output, os.path.basename(frame_path))
-            #         else:
-            #             # assert len(args.input) == 1, "Please specify a directory with args.output"
-            #             os.makedirs(args.output, exist_ok=True)
-            #             out_filename = os.path.join(args.output, os.path.basename(frame_path))
-            #         visualized_output[frame_idx].save(out_filename)
-            #     else:
-            #         cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-            #         cv2.imshow(WINDOW_NAME, visualized_output[frame_idx].get_image()[:, :, ::-1])
-            #     if cv2.waitKey(0) == 27:
-            #         break
-    elif args.webcam:
-        raise NotImplementedError("Input is not supported yet.")
-        assert args.input is None, "Cannot have both --input and --webcam!"
-        assert args.output is None, "output not yet supported with --webcam!"
-        cam = cv2.VideoCapture(0)
-        for vis in tqdm.tqdm(demo.run_on_video(cam)):
-            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
-            cv2.imshow(WINDOW_NAME, vis)
-            if cv2.waitKey(1) == 27:
-                break  # esc to quit
-        cam.release()
-        cv2.destroyAllWindows()
-    elif args.video_input:
-        raise NotImplementedError("Input is not supported yet.")
-        video = cv2.VideoCapture(args.video_input)
-        width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        frames_per_second = video.get(cv2.CAP_PROP_FPS)
-        num_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-        basename = os.path.basename(args.video_input)
-        codec, file_ext = (
-            ("x264", ".mkv") if test_opencv_video_format("x264", ".mkv") else ("mp4v", ".mp4")
-        )
-        if codec == ".mp4v":
-            warnings.warn("x264 codec not available, switching to mp4v")
-        if args.output:
-            if os.path.isdir(args.output):
-                output_fname = os.path.join(args.output, basename)
-                output_fname = os.path.splitext(output_fname)[0] + file_ext
+            # use PIL, to be consistent with evaluation
+            img = read_image(frame_path, format="BGR")
+            sequence_imgs.append(img)
+        start_time = time.time()
+        predictions = demo.run_on_sequence(sequence_imgs) #, visualized_output, total_pred_labels
+        #print(visualized_output)
+        #print(total_pred_labels)
+
+
+
+        for frame_idx, frame_path in enumerate(sequence_frame):
+            if output:
+                if os.path.isdir(output):
+
+                    assert os.path.isdir(output), output
+                    out_filename = os.path.join(output, os.path.basename(frame_path))
+                else:
+
+                    # assert len(args.input) == 1, "Please specify a directory with args.output"
+                    os.makedirs(output, exist_ok=True)
+                    out_filename = os.path.join(output, os.path.basename(frame_path))
+                #visualized_output[frame_idx].save(out_filename)
+
             else:
-                output_fname = args.output
-            assert not os.path.isfile(output_fname), output_fname
-            output_file = cv2.VideoWriter(
-                filename=output_fname,
-                # some installation of opencv may not support x264 (due to its license),
-                # you can try other format (e.g. MPEG)
-                fourcc=cv2.VideoWriter_fourcc(*codec),
-                fps=float(frames_per_second),
-                frameSize=(width, height),
-                isColor=True,
-            )
-        assert os.path.isfile(args.video_input)
-        for vis_frame in tqdm.tqdm(demo.run_on_video(video), total=num_frames):
-            if args.output:
-                output_file.write(vis_frame)
-            else:
-                cv2.namedWindow(basename, cv2.WINDOW_NORMAL)
-                cv2.imshow(basename, vis_frame)
-                if cv2.waitKey(1) == 27:
-                    break  # esc to quit
-        video.release()
-        if args.output:
-            output_file.release()
+
+                cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+                #cv2.imshow(WINDOW_NAME, visualized_output[frame_idx].get_image()[:, :, ::-1])
+            if cv2.waitKey(0) == 27:
+                break
+
+        new_tensor = []
+
+
+
+        if len(frame_names)>1:
+            predictions_new = predictions['pred_masks']
         else:
-            cv2.destroyAllWindows()
+            predictions_new = [predictions[0]["instances"].pred_masks.to("cpu") ] 
+
+        #print(predictions_new)
+        x= len(predictions_new)
+        y= len(predictions_new[0])
+
+        for i in range (x):
+            counter = 0
+            for j in range(y):
+                mask_name= "mask_{}_{}.png".format(i,j)
+                #cv2.imwrite(os.path.join(output,mask_name),np.asarray(predictions_new[i][j])*1024*10)    #Uncomment to visualize each mask
+                if not is_black_image(np.asarray(predictions_new[i][j])*1024):
+                    temp_j = j
+
+               
+
+            new_tensor.append((predictions_new[i][j]))        
+              
+
+
+
+
+        result = np.zeros(new_tensor[0].shape, dtype=np.uint8)           
+                
+        for i in range(len(new_tensor)):
+            result[new_tensor[i] >0] = i+1
+            
+        #cv2.imwrite(os.path.join(output,"result.png"),result)  
+        pil_image = Image.fromarray(result)                                    
+        pil_image.save(os.path.join(output,"result.png"))
+            
+            
