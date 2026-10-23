@@ -164,11 +164,17 @@ class VisualizationDemo(object):
         # Calculate the max sequence IoU between the predicted masks and the ground truth masks
         frame_masks = list(zip(*pred_masks))
         pred_masks_stack = None
-        for frame_idx in range(len(frames)):
+        for frame_idx in range(len(frames[0])):
             if len(pred_scores) > 0:
                 pred_masks_stack = torch.stack(frame_masks[frame_idx], dim=0)
+        try:
+            embeddings_temp = embedded_array[0]
+            mask = pred_masks[0]
+        except:
+            embeddings_temp = torch.ones((1, 256), dtype = torch.float64).to('cuda:0')
+            mask = torch.zeros((frames[0].shape[0], frames[0].shape[1]), dtype = torch.uint8)
 
-        return pred_masks[0], embedded_array[0]
+        return mask, embeddings_temp
     
     def _frame_from_video(self, video):
         while video.isOpened():
