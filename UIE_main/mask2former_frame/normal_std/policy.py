@@ -53,8 +53,9 @@ def estimate_suction(depth_img, obj_mask, camera_info):
     pc_o3d = o3d.geometry.PointCloud(
         o3d.utility.Vector3dVector(point_cloud_valid))
     # print('here')
-    pc_o3d.estimate_normals(o3d.geometry.KDTreeSearchParamKNN(
-        224), fast_normal_computation=False)
+    pc_o3d.estimate_normals(o3d.geometry.KDTreeSearchParamHybrid(radius=0.02, max_nn=500))
+    # pc_o3d.estimate_normals(o3d.geometry.KDTreeSearchParamKNN(
+    #     224), fast_normal_computation=False)
     pc_o3d.orient_normals_to_align_with_direction(np.array([0., 0., -1.]))
     pc_o3d.normalize_normals()
     normals = np.array(pc_o3d.normals).astype(np.float32)
