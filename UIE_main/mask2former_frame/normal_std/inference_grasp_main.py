@@ -11,12 +11,14 @@ import scipy.io as scio
 from normal_std.policy import estimate_suction
 import math
 import matplotlib.pyplot as plt
-sys.path.append("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/mask2former_frame")
+import calendar
+import time
+sys.path.append("/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/UIE_main/mask2former_frame")
 
 
 split = 'test_seen'
 camera = 'kinect'
-save_root = '/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/result'
+save_root = '/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/UIE_main/result'
 
 
 class CameraInfo():
@@ -94,7 +96,7 @@ class run_normal_std():
         # Generate gaussian
         size = 2 * tmpSize + 1
         x = np.arange(0, size, 1, float)
-        # print('x:', x.shape)
+        # print('x:', x.shape)l
         y = x[:, np.newaxis]
         # print('x:', x.shape)
         x0 = y0 = size // 2
@@ -114,12 +116,12 @@ class run_normal_std():
         tmp_img[img_y[0]:img_y[1], img_x[0]:img_x[1]] = g
         img += tmp_img
 
-    def inference(self, rgb_img, depth_img, mask):
+    def inference(self, rgb_img, depth_img, mask, grasp_point):
         count = 0
         # reading the depth mask and rgb file, also reading the meta file for intrinsic parameters
         # segmask_file = "/home/soofiyanatar/Documents/AmazonHUB/UIE-main/masks/label0.png"
-        # depth_file = "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/depth/depth_2.png"
-        # rgb_file = "/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
+        # depth_file = "/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/depth/depth_2.png"
+        # rgb_file = "/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/UIE_main/annotated_real_v1_resized/images/scene_03/bin_1E/bin_1E_color_0006.png"
     
         # segmask_file = "/home/soofiyanatar/datasets/Full_Dataset/label_segnet.png"
         # depth_file = "/home/soofiyanatar/datasets/Full_Dataset/depth_segnet.png"
@@ -127,103 +129,47 @@ class run_normal_std():
 
         # Getting the depth image in meters and segmentation mask in its original state (grayscale)
         # depth_img = cv2.cvtColor(depth_img, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/depth.png", depth_img)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/mask_first.png", mask)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/rgb_first.png", rgb_img)
+        cv2.imwrite("/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/Mask_Results/depth.png", depth_img)
+        cv2.imwrite("/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/Mask_Results/mask_first.png", mask)
+        cv2.imwrite("/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/Mask_Results/rgb_first.png", rgb_img)
 
-        depth = depth_img.astype(np.float32)/1000.0
+        depth = depth_img.astype(np.float32)
         print('depth shape', depth.shape)
         seg_mask = mask.astype(np.uint8)
         print("shape of rgb", rgb_img.shape)
         # applying contour to get the edges of the mask
-        contours = cv2.findContours(
-            seg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        contours = contours[0] if len(contours) == 2 else contours[1]
-        big_contour = max(contours, key=cv2.contourArea)
 
-        # get rotated rectangle from contour
-        # get its dimensions
-        # get angle relative to horizontal from rotated rectangle
-        rotrect = cv2.minAreaRect(big_contour)
-        (center), (width, height), angle = rotrect
-        box = cv2.boxPoints(rotrect)
-        boxpts = np.int0(box)
+        try:
+            if(grasp_point.all() == None):
+                contours = cv2.findContours(
+                    seg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours = contours[0] if len(contours) == 2 else contours[1]
+                big_contour = max(contours, key=cv2.contourArea)
 
-        # # draw rotated rectangle on copy of input
-        # rotrect_img = seg_mask.copy()
+                # get rotated rectangle from contour
+                # get its dimensions
+                # get angle relative to horizontal from rotated rectangle
+                rotrect = cv2.minAreaRect(big_contour)
+                (center), (width, height), angle = rotrect
+            else:
+                center = grasp_point
+        except:
+            contours = cv2.findContours(
+                seg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours = contours[0] if len(contours) == 2 else contours[1]
+            big_contour = max(contours, key=cv2.contourArea)
 
-        # print("pre angle and box points")
-        # print(angle)
-        # print(boxpts)
-        # correcting the angle
-        # if angle < -45:
-        #     angle = -(90 + angle)
-
-        # # otherwise, check width vs height
-        # else:
-        #     if width > height:
-        #         angle = -(90 + angle)
-        #     else:
-        #         angle = -angle
-
-        # # adding condition on different angles on height and weight
-        # if((angle <= -70 and angle >= -160) or (angle >= 70 and angle <= 160)):
-        #     angle += 90
-        #     boxpts[0][1] += (height/1.5)*math.cos((angle)*math.pi/180)
-        #     boxpts[1][1] += (height/1.5)*math.cos((angle)*math.pi/180)
-        #     boxpts[0][0] += (height/1.5)*math.sin((angle)*math.pi/180)
-        #     boxpts[1][0] += (height/1.5)*math.sin((angle)*math.pi/180)
-        # elif((angle < -160) or (angle > 160)):
-        #     boxpts[0][1] += (height*1.25)*math.cos((180+angle)*math.pi/180)
-        #     boxpts[1][1] += (height*1.25)*math.cos((180+angle)*math.pi/180)
-        #     boxpts[0][0] += (height*1.25)*math.sin((180+angle)*math.pi/180)
-        #     boxpts[1][0] += (height*1.25)*math.sin((180+angle)*math.pi/180)
-        # else:
-        #     boxpts[1][1] += (height/1.5)*math.cos((angle)*math.pi/180)
-        #     boxpts[2][1] += (height/1.5)*math.cos((angle)*math.pi/180)
-        #     boxpts[1][0] += (height/1.5)*math.sin((angle)*math.pi/180)
-        #     boxpts[2][0] += (height/1.5)*math.sin((angle)*math.pi/180)
-        
-        # print("angle and box points")
-        # print(angle)
-        # print(boxpts)
-
-        # # getting rotation matrix on the basis of angle
-        # M = cv2.getRotationMatrix2D(center, -angle, scale=1.0)
-
-        # # after reducing the points we have to mask that area with black for proper detection
-        # cv2.drawContours(rotrect_img, [boxpts], 0, (255, 255, 255), 1)
-
-        # # Now for visualization we resized the image
-        # rotrect_img = cv2.resize(rotrect_img, (1024, 768),
-        #                             interpolation=cv2.INTER_LINEAR)
-
-        # # fill the polygon in segmentation mask using teje points
-        # points = np.array([[boxpts[0][0], boxpts[0][1]], [boxpts[1][0], boxpts[1][1]], [
-        #     boxpts[2][0], boxpts[2][1]], [boxpts[3][0], boxpts[3][1]]])
-        # seg_mask = cv2.fillPoly(seg_mask, np.int32([points]), (0, 0, 0))
-
-        # (thresh, binary_mask) = cv2.threshold(
-        #     seg_mask, 1, 255, cv2.THRESH_BINARY)
-        # binary_mask = Image.fromarray(binary_mask)
-        # binary_mask.save("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/binary_mask.png")
-        # binary_mask_save = binary_mask.astype(np.uint8)
-        # cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/binary_mask.png", binary_mask_save)
-
-        # kernel = np.ones((4, 4), np.uint8)
-        # seg_mask = cv2.erode(seg_mask, kernel, iterations=1)
-        # seg_mask = cv2.dilate(seg_mask, kernel, iterations=1)
+            # get rotated rectangle from contour
+            # get its dimensions
+            # get angle relative to horizontal from rotated rectangle
+            rotrect = cv2.minAreaRect(big_contour)
+            (center), (width, height), angle = rotrect
 
         # For RGB
-        fx, fy = 1940.1367, 1940.1958
-        # For Depth
-        # fx, fy = 504.9533, 504.976
-        # cx, cy = 514.2323, 507.22818
-
-        # These values are for Image with dimension 4096x3072
-        cx, cy = 2048.7397, 1551.3889
-        width = 4096
-        height = 3072
+        fx, fy = 903.14697265625, 903.5240478515625
+        cx, cy = 640.839599609375, 355.6268310546875
+        width = 1280
+        height = 720
 
         # These values are for Image with dimension 360x160
         # cx, cy = 180.0646, 80.8015
@@ -240,6 +186,7 @@ class run_normal_std():
 
         heatmap, normals, point_cloud = estimate_suction(
             depth, seg_mask, camera_info)
+        print(normals.shape)
 
         k_size = 15
         kernel = self.uniform_kernel(k_size)
@@ -248,10 +195,8 @@ class run_normal_std():
         heatmap = torch.from_numpy(heatmap).unsqueeze(0).unsqueeze(0)
         heatmap = F.conv2d(heatmap, kernel).squeeze().numpy()
 
-        suction_scores, idx0, idx1 = self.grid_sample(
-            heatmap, down_rate=15, topk=50)
-        suction_directions = normals[idx0, idx1, :]
-        suction_translations = point_cloud[idx0, idx1, :]
+        suction_directions = normals[int(center[1]), int(center[0]), :]
+        print(suction_directions)
 
         # pridictions
         score_image = heatmap
@@ -263,22 +208,15 @@ class run_normal_std():
         rgb_image = rgb_img
         rgb_image = 0.5 * rgb_image + 0.5 * score_image
         rgb_image = rgb_image.astype(np.uint8)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/grasp1.png", rgb_image)
-        # im = Image.fromarray(rgb_image)
 
-        # For visulaizing using cv2 in realtime
-        # temp_rgb = cv2.resize(rgb_image, (1280, 720),
-        #                       interpolation=cv2.INTER_AREA)
-        # cv2.imshow("rgb ", rgb_image)
-        # cv2.waitKey(0)
-
-        # visu_dir = save_root
-        # os.makedirs(visu_dir, exist_ok=True)
-        # im.save(visu_dir+'/%04d' % count+'.png')
+        current_GMT = time.gmtime()
+        time_stamp = calendar.timegm(current_GMT)
+        cv2.imwrite("/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/Mask_Results/"+str(time_stamp)+"grasp1.png", rgb_image)
 
         # sampled suctions
         # origin is at top left side, so calculate as per the origin
         print("center ", center)
+        # depth /= 1000.0
         center3D_depth_value = depth[int(center[1]), int(center[0])]
 
         pointz = center3D_depth_value
@@ -289,39 +227,18 @@ class run_normal_std():
         print("center ", center_3D)
         score_image = np.zeros_like(heatmap)
         best_distance = sys.maxsize
-        suction_number = 0
         best_point = [pointx, pointy, pointz]
 
-        for i in range(suction_scores.shape[0]):
-            center3D_depth_value = depth[int(idx0[i]), int(idx1[i])]
-
-            pointz = center3D_depth_value
-            pointx = (idx1[i] - cx) * pointz / fx
-            pointy = (idx0[i] - cy) * pointz / fy
-            # print(pointx, pointy, pointz)
-            # printing all the suction points
-            # print("all suction points ", pointx, pointy, pointz)
-            distance = math.sqrt(
-                (center_3D[0] - pointx)**2 + (center_3D[1] - pointy)**2)
-            if(distance < best_distance and distance < 0.025 and suction_scores[i] > 0.6):
-                suction_number = i
-                best_distance = distance
-                best_point = [pointx, pointy, pointz]
-
-        if(depth[(idx0[suction_number]), int(idx1[suction_number])] < 1.3):
-            self.drawGaussian(score_image, [
-                idx1[suction_number], idx0[suction_number]], 1.0, 3)
-            self.drawGaussian(
-                score_image, [int(center[0]), int(center[1])], 0.5, 3)
-        euler_angle = [math.asin(suction_directions[suction_number][0]), math.asin(
-            suction_directions[suction_number][1])]
+        self.drawGaussian(score_image, [int(center[0]), int(center[1])], 1.0, 3)
+        euler_angle = [math.asin(suction_directions[0]), math.asin(
+            suction_directions[1])]
         # print(center_3D)
 
         # print("Rotation Matrix ", )
         # print("directions", suction_directions[suction_number])
         print("direction angles x, y ", math.asin(
-            suction_directions[suction_number][0])*180/math.pi, math.asin(
-            suction_directions[suction_number][1])*180/math.pi)
+            suction_directions[0])*180/math.pi, math.asin(
+            suction_directions[1])*180/math.pi)
         # print("translations", suction_translations[suction_number])
 
         score_image *= 255
@@ -331,7 +248,8 @@ class run_normal_std():
         rgb_image = rgb_img
         rgb_image = 0.5 * rgb_image + 0.5 * score_image
         rgb_image = rgb_image.astype(np.uint8)
-        cv2.imwrite("/home/aurmr/workspaces/soofiyan_ws/src/segnetv2_mask2_former/Mask_Results/grasp2.png", rgb_image)
+        # cv2.imwrite("/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/Mask_Results/grasp2.png", rgb_image)
+        cv2.imwrite("/home/aurmr/workspaces/scenario_based_grasp_point_selection/src/segnetv2_mask2_former/Mask_Results/"+str(time_stamp)+"grasp2.png", rgb_image)
         # im = Image.fromarray(rgb_image)
 
         # visu_dir = save_root
@@ -339,9 +257,9 @@ class run_normal_std():
         # im.save(visu_dir+'/%04d_sampled' % count+'.png')
         # count += 1
         # cv2.destroyAllWindows()
-        best_point_return = [best_point[0], best_point[1], 1.081]
+        # best_point_return = [best_point[0], best_point[1], 1.081]
+        best_point_return = [best_point[0], best_point[1], best_point[2]]
         return best_point_return, euler_angle
 
 # if __name__ == "__main__":
-
-    # inference()
+#     inference()
