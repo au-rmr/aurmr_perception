@@ -124,12 +124,13 @@ class VisualizationDemo(object):
                 ins.pred_classes = pred_labels
                 ins.pred_masks = torch.stack(frame_masks[frame_idx], dim=0)
                 individual_mask = []
-                for i in range(len(np.asarray(frame_masks[frame_idx]))):
-                    mask_single = np.asarray(frame_masks[frame_idx])[i]
+                print(len(frame_masks[frame_idx]))
+                for i in range(len(frame_masks[frame_idx])):
+                    mask_single = np.array(frame_masks[frame_idx][i])
                     count = np.unique(mask_single)
                     # print(len(count))
                     if(len(count) > 1):
-                        individual_mask.append(np.asarray(frame_masks[frame_idx])[i])
+                        individual_mask.append(np.array(frame_masks[frame_idx][i]))
                 masks.append(individual_mask)
             vis_output = visualizer.draw_instance_predictions(predictions=ins)
             total_vis_output.append(vis_output)

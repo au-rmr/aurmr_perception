@@ -1,6 +1,0 @@
-# ninja log v5
-0	4298	1673992301408945953	/home/soofiyan_ws/workspaces/VITA_ws/detectron2/build/temp.linux-x86_64-cpython-38/home/soofiyan_ws/workspaces/VITA_ws/detectron2/detectron2/layers/csrc/box_iou_rotated/box_iou_rotated_cpu.o	b4742f9f0373f5c9
-0	4460	1673992301564944473	/home/soofiyan_ws/workspaces/VITA_ws/detectron2/build/temp.linux-x86_64-cpython-38/home/soofiyan_ws/workspaces/VITA_ws/detectron2/detectron2/layers/csrc/cocoeval/cocoeval.o	80aa707225942b3f
-0	4566	1673992301672943450	/home/soofiyan_ws/workspaces/VITA_ws/detectron2/build/temp.linux-x86_64-cpython-38/home/soofiyan_ws/workspaces/VITA_ws/detectron2/detectron2/layers/csrc/nms_rotated/nms_rotated_cpu.o	7bf6d9f00b3fe0d5
-0	5694	1673992302800932754	/home/soofiyan_ws/workspaces/VITA_ws/detectron2/build/temp.linux-x86_64-cpython-38/home/soofiyan_ws/workspaces/VITA_ws/detectron2/detectron2/layers/csrc/ROIAlignRotated/ROIAlignRotated_cpu.o	7048e15a7e4d08ee
-1	16180	1673992313280833366	/home/soofiyan_ws/workspaces/VITA_ws/detectron2/build/temp.linux-x86_64-cpython-38/home/soofiyan_ws/workspaces/VITA_ws/detectron2/detectron2/layers/csrc/vision.o	53d2932fa7e5fef9
